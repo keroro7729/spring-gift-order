@@ -3,14 +3,16 @@ package gift.service;
 import gift.common.dto.request.AddWishRequestDto;
 import gift.common.dto.response.WishResponseDto;
 import gift.common.exception.BusinessException;
-import gift.common.exception.code.DatabaseErrorCode;
 import gift.common.exception.code.ResourceErrorCode;
 import gift.common.exception.code.SecurityErrorCode;
 import gift.domain.member.Member;
+import gift.domain.product.Product;
 import gift.domain.wish.Wish;
-import gift.repository.WishRepository;
+import gift.repository.jpa.ProductRepository;
+import gift.repository.jpa.WishRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -19,13 +21,21 @@ import java.util.Optional;
 public class WishService {
 
     private final WishRepository wishRepository;
+    private final MemberService memberService;
+    private final ProductService productService;
 
-    public WishService(WishRepository wishRepository) {
+    public WishService(WishRepository wishRepository,
+                       MemberService memberService,
+                       ProductService productService) {
         this.wishRepository = wishRepository;
+        this.memberService = memberService;
+        this.productService = productService;
     }
 
+    @Transactional
     public WishResponseDto add(Member member, AddWishRequestDto request) {
-        Optional<Wish> found = wishRepository.findByMemberIdProductId(member.getId(), request.productId());
+        Product product = productService.getById(request.productId());
+        Optional<Wish> found = wishRepository.findByMemberAndProduct(member, product);
         Wish wish;
         if (found.isEmpty()) {
             wish = create(member.getId(), request.productId(), request.quantity());
@@ -42,6 +52,7 @@ public class WishService {
                 .toList();
     }
 
+    @Transactional
     public void delete(Member member, Long wishId) {
         Wish wish = wishRepository.findById(wishId)
                 .orElseThrow(() -> BusinessException.of(
@@ -56,25 +67,20 @@ public class WishService {
                     HttpStatus.FORBIDDEN
             );
         }
-        wishRepository.delete(wishId);
+        wishRepository.delete(wish);
     }
 
+    @Transactional
     private Wish create(Long memberId, Long productId, Integer quantity) {
-        Wish instance = Wish.of(null, memberId, productId, quantity);
-        return wishRepository.save(instance)
-                .orElseThrow(() -> BusinessException.internal(
-                        DatabaseErrorCode.WISH_CREATION_FAIL,
-                        String.format("Fail to create Wish(member=%d, product=%d, quantity=%d)", memberId, productId, quantity)
-                ));
+        Member member = memberService.getById(memberId);
+        Product product = productService.getById(productId);
+        Wish instance = Wish.of(null, member, product, quantity);
+        return wishRepository.save(instance);
     }
 
+    @Transactional
     private Wish increaseQuantity(Wish wish, Integer addQuantity) {
         wish.addQuantity(addQuantity);
-        return wishRepository.update(wish.getId(), wish)
-                .orElseThrow(() -> BusinessException.of(
-                        ResourceErrorCode.WISH_NOT_FOUND,
-                        "Wish does not exist: id = " + wish.getId(),
-                        HttpStatus.NOT_FOUND)
-                );
+        return wish;
     }
 }

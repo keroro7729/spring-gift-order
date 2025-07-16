@@ -1,4 +1,4 @@
-package gift;
+package study;
 
 import gift.common.dto.request.ProductRequestDto;
 import gift.common.dto.response.MessageResponseDto;

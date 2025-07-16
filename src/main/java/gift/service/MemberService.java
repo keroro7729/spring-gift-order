@@ -5,15 +5,15 @@ import gift.common.dto.response.TokenResponseDto;
 import gift.common.exception.BusinessException;
 import gift.common.exception.EntityNotFoundException;
 import gift.common.exception.code.BusinessErrorCode;
-import gift.common.exception.code.ResourceErrorCode;
 import gift.common.exception.code.SecurityErrorCode;
 import gift.domain.member.Member;
-import gift.repository.MemberRepository;
+import gift.repository.jpa.MemberRepository;
 import gift.util.JwtUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class MemberService {
@@ -42,6 +42,12 @@ public class MemberService {
                 .orElseThrow(() -> new EntityNotFoundException("Member not found, email: " + email));
     }
 
+    public Member getById(Long id) {
+        return memberRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Member not found, id: " + id));
+    }
+
+    @Transactional
     private Member register(String email, String plainPassword) {
         if (memberRepository.findByEmail(email).isPresent()) {
             throw new BusinessException.Builder(BusinessErrorCode.REGISTER_EMAIL_CONFLICT, "Register email conflict: email=" + email)
@@ -52,10 +58,10 @@ public class MemberService {
         }
         String encryptedPassword = encoder.encode(plainPassword);
         Member instance = Member.createTemp(email, encryptedPassword);
-        return memberRepository.save(instance)
-                .orElseThrow(() -> BusinessException.internal(ResourceErrorCode.MEMBER_NOT_FOUND, "Fail to create Member: email=" + email));
+        return memberRepository.save(instance);
     }
 
+    @Transactional
     private TokenResponseDto login(String email, String plainPassword) {
         Member member = memberRepository.findByEmail(email)
                 .orElseThrow(() -> BusinessException.of(

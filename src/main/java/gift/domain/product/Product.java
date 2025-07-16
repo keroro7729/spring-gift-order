@@ -1,14 +1,33 @@
 package gift.domain.product;
 
+import jakarta.persistence.*;
+
+@Entity
+@Table(name = "product")
 public class Product {
 
     public static final Long MAX_PRICE = 9999999999L;
 
-    private final Long id;
-    private final String name;
-    private final Long price;
-    private final String imageUrl;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false)
+    private String name;
+
+    @Column(nullable = false)
+    private Long price;
+
+    @Column(name = "image_url")
+    private String imageUrl;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private ProductState state;
+
+    public Product() {
+
+    }
 
     private Product(Long id, String name, Long price, String imageUrl, ProductState state) {
         this.id = id;
@@ -41,6 +60,10 @@ public class Product {
         return of(null, name, price, imageUrl, ProductState.TEMP);
     }
 
+    public static Product updateInstance(Long id, String name, Long price, String imageUrl) {
+        return of(id, name, price, imageUrl, ProductState.TEMP);
+    }
+
     public boolean involveKakao() {
         return name.matches(".*카카오.*");
     }
@@ -63,6 +86,26 @@ public class Product {
 
     public String getStateName() {
         return state.getStateName();
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setPrice(Long price) {
+        this.price = price;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
+    public void setState(ProductState state) {
+        this.state = state;
     }
 
     public void onBoard() {

@@ -8,9 +8,10 @@ import gift.common.exception.code.BusinessErrorCode;
 import gift.common.exception.code.ResourceErrorCode;
 import gift.domain.product.Product;
 import gift.domain.product.ProductQueryOption;
-import gift.repository.ProductRepository;
+import gift.repository.jpa.ProductRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Comparator;
 import java.util.List;
@@ -24,17 +25,16 @@ public class ProductService {
         this.productRepository = productRepository;
     }
 
+    @Transactional
     public MessageResponseDto<ProductResponseDto> create(ProductRequestDto body) {
         Product instance = body.toEntity();
         if (instance.involveKakao()) {
             instance.waitApproval();
-            Product created = productRepository.save(instance)
-                    .orElseThrow(() -> createProductFail(body.name()));
+            Product created = productRepository.save(instance);
             return new MessageResponseDto<>(false, "카카오 관련 상품 승인 대기중", 202, ProductResponseDto.from(created));
         }
         instance.onBoard();
-        Product created = productRepository.save(instance)
-                .orElseThrow(() -> createProductFail(body.name()));
+        Product created = productRepository.save(instance);
         return new MessageResponseDto<>(true, "상품 생성 완료", 201, ProductResponseDto.from(created));
     }
 
@@ -58,22 +58,35 @@ public class ProductService {
                 .toList();
     }
 
+    @Transactional
     public MessageResponseDto<ProductResponseDto> update(Long id, ProductRequestDto body) {
         find(id);
         Product instance = body.toEntity();
+        instance.setId(id);
         if (instance.involveKakao()) {
             instance.waitApproval();
-            Product updated = productRepository.update(id, instance).get();
+            Product updated = productRepository.save(instance);
             return new MessageResponseDto<>(false, "카카오 관련 상품 승인 대기중", 202, ProductResponseDto.from(updated));
         }
         instance.onBoard();
-        Product updated = productRepository.update(id, instance).get();
+        Product updated = productRepository.save(instance);
         return new MessageResponseDto<>(true, "상품 수정 완료", 200, ProductResponseDto.from(updated));
     }
 
+    public Product getById(Long id) {
+        return productRepository.findById(id)
+                .orElseThrow(() -> BusinessException.of(
+                                ResourceErrorCode.PRODUCT_NOT_FOUND,
+                                "상품이 존재하지 않습니다.",
+                                HttpStatus.NOT_FOUND
+                        )
+                );
+    }
+
+    @Transactional
     public void delete(Long id) {
-        find(id);
-        productRepository.delete(id);
+        Product found = find(id);
+        productRepository.delete(found);
     }
 
     private Product find(Long id) {
@@ -84,12 +97,5 @@ public class ProductService {
                         .logLevel(2)
                         .build()
                 );
-    }
-
-    private BusinessException createProductFail(String name) {
-        return BusinessException.internal(
-                ResourceErrorCode.PRODUCT_NOT_FOUND,
-                String.format("Fail to create Product(%s)", name)
-        );
     }
 }

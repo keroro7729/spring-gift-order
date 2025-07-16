@@ -11,7 +11,6 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 
-@Repository
 public class WishRepository {
 
     private static final RowMapper<Wish> ROW_MAPPER = (rs, rowNum) -> {
@@ -19,7 +18,8 @@ public class WishRepository {
         Long memberId = rs.getLong("member_id");
         Long productId = rs.getLong("product_id");
         Integer quantity = rs.getInt("quantity");
-        return Wish.of(id, memberId, productId, quantity);
+        return null;
+        //return Wish.of(id, memberId, productId, quantity);
     };
     private final JdbcClient client;
 

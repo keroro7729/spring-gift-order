@@ -1,20 +1,44 @@
 package gift.domain.wish;
 
+import gift.domain.member.Member;
+import gift.domain.product.Product;
+import jakarta.persistence.*;
+
+@Entity
+@Table(
+        name = "wish",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"member_id", "product_id"})
+)
 public class Wish {
-    private final Long id;
-    private final Long memberId;
-    private final Long productId;
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id")
+    private Member member;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "product_id")
+    private Product product;
+
+    @Column(nullable = false)
     private Integer quantity;
 
-    private Wish(Long id, Long memberId, Long productId, Integer quantity) {
+    public Wish() {
+
+    }
+
+    private Wish(Long id, Member member, Product product, Integer quantity) {
         this.id = id;
-        this.memberId = memberId;
-        this.productId = productId;
+        this.member = member;
+        this.product = product;
         this.quantity = quantity;
     }
 
-    public static Wish of(Long id, Long memberId, Long productId, Integer quantity) {
-        return new Wish(id, memberId, productId, quantity);
+    public static Wish of(Long id, Member member, Product product, Integer quantity) {
+        return new Wish(id, member, product, quantity);
     }
 
     public void addQuantity(Integer addQuantity) {
@@ -26,14 +50,30 @@ public class Wish {
     }
 
     public Long getMemberId() {
-        return memberId;
+        return member.getId();
     }
 
     public Long getProductId() {
-        return productId;
+        return product.getId();
     }
 
     public Integer getQuantity() {
         return quantity;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setMember(Member member) {
+        this.member = member;
+    }
+
+    public void setProduct(Product product) {
+        this.product = product;
+    }
+
+    public void setQuantity(Integer quantity) {
+        this.quantity = quantity;
     }
 }
