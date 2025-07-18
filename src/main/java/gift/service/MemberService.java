@@ -7,7 +7,7 @@ import gift.common.exception.EntityNotFoundException;
 import gift.common.exception.code.BusinessErrorCode;
 import gift.common.exception.code.SecurityErrorCode;
 import gift.domain.member.Member;
-import gift.repository.jpa.MemberRepository;
+import gift.repository.MemberRepository;
 import gift.util.JwtUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -28,11 +28,13 @@ public class MemberService {
         this.jwtUtil = jwt;
     }
 
+    @Transactional
     public TokenResponseDto handleRegisterRequest(MemberRequestDto request) {
         register(request.email(), request.password());
         return login(request.email(), request.password());
     }
 
+    @Transactional
     public TokenResponseDto handleLoginRequest(MemberRequestDto request) {
         return login(request.email(), request.password());
     }
@@ -47,7 +49,6 @@ public class MemberService {
                 .orElseThrow(() -> new EntityNotFoundException("Member not found, id: " + id));
     }
 
-    @Transactional
     private Member register(String email, String plainPassword) {
         if (memberRepository.findByEmail(email).isPresent()) {
             throw new BusinessException.Builder(BusinessErrorCode.REGISTER_EMAIL_CONFLICT, "Register email conflict: email=" + email)
@@ -61,7 +62,6 @@ public class MemberService {
         return memberRepository.save(instance);
     }
 
-    @Transactional
     private TokenResponseDto login(String email, String plainPassword) {
         Member member = memberRepository.findByEmail(email)
                 .orElseThrow(() -> BusinessException.of(

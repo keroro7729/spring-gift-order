@@ -25,8 +25,7 @@ public class Product {
     @Column(nullable = false)
     private ProductState state;
 
-    public Product() {
-
+    protected Product() {
     }
 
     private Product(Long id, String name, Long price, String imageUrl, ProductState state) {
@@ -60,11 +59,7 @@ public class Product {
         return of(null, name, price, imageUrl, ProductState.TEMP);
     }
 
-    public static Product updateInstance(Long id, String name, Long price, String imageUrl) {
-        return of(id, name, price, imageUrl, ProductState.TEMP);
-    }
-
-    public boolean involveKakao() {
+    public boolean isInvolveKakao()  {
         return name.matches(".*카카오.*");
     }
 
@@ -84,28 +79,16 @@ public class Product {
         return imageUrl;
     }
 
+    public ProductState getState() {
+        return state;
+    }
+
     public String getStateName() {
         return state.getStateName();
     }
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setPrice(Long price) {
-        this.price = price;
-    }
-
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
-    }
-
-    public void setState(ProductState state) {
-        this.state = state;
     }
 
     public void onBoard() {
@@ -117,20 +100,6 @@ public class Product {
 
     public void waitApproval() {
         state = ProductState.WAITING;
-    }
-
-    public void approve() {
-        if (state != ProductState.WAITING) {
-            throw new ProductStateException("Product is not waiting for approve: " + this);
-        }
-        state = ProductState.SELLING;
-    }
-
-    public void reject() {
-        if (state != ProductState.WAITING) {
-            throw new ProductStateException("Product is not waiting for approve: " + this);
-        }
-        state = ProductState.REJECTED;
     }
 
     public boolean isShowable(ProductQueryOption option) {

@@ -6,6 +6,7 @@ import gift.common.dto.response.ProductResponseDto;
 import gift.domain.product.ProductQueryOption;
 import gift.service.ProductService;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -40,8 +41,9 @@ public class ProductController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ProductResponseDto>> getAllProduct(@RequestParam(defaultValue = "SELLING") ProductQueryOption option) {
-        List<ProductResponseDto> response = productService.getList(option);
+    public ResponseEntity<List<ProductResponseDto>> getAllProduct(@RequestParam(defaultValue = "SELLING") ProductQueryOption option,
+                                                                  Pageable pageable) {
+        List<ProductResponseDto> response = productService.getList(pageable, option);
         return ResponseEntity.ok(response);
     }
 

@@ -8,8 +8,9 @@ import gift.common.exception.code.SecurityErrorCode;
 import gift.domain.member.Member;
 import gift.domain.product.Product;
 import gift.domain.wish.Wish;
-import gift.repository.jpa.ProductRepository;
-import gift.repository.jpa.WishRepository;
+import gift.repository.WishRepository;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,9 +46,8 @@ public class WishService {
         return WishResponseDto.from(wish);
     }
 
-    public List<WishResponseDto> getOwnList(Member member) {
-        return wishRepository.findAll().stream()
-                .filter(w -> w.getMemberId().equals(member.getId()))
+    public List<WishResponseDto> getOwnList(Pageable pageable, Member member) {
+        return wishRepository.findAllByMember(pageable, member).stream()
                 .map(WishResponseDto::from)
                 .toList();
     }
@@ -60,17 +60,16 @@ public class WishService {
                         "Wish does not exist: id = " + wishId,
                         HttpStatus.NOT_FOUND
                 ));
-        if (!wish.getMemberId().equals(member.getId())) {
+        if (!wish.isOwner(member.getId())) {
             throw BusinessException.of(
                     SecurityErrorCode.AUTH_FORBIDDEN,
-                    "해당 상품에 접근할 권한이 없습니다.",
+                    "해당 Wish에 접근할 권한이 없습니다.",
                     HttpStatus.FORBIDDEN
             );
         }
         wishRepository.delete(wish);
     }
 
-    @Transactional
     private Wish create(Long memberId, Long productId, Integer quantity) {
         Member member = memberService.getById(memberId);
         Product product = productService.getById(productId);
@@ -78,7 +77,6 @@ public class WishService {
         return wishRepository.save(instance);
     }
 
-    @Transactional
     private Wish increaseQuantity(Wish wish, Integer addQuantity) {
         wish.addQuantity(addQuantity);
         return wish;

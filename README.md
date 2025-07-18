@@ -79,3 +79,5 @@
 - 맴버 엔티티 매핑, 레파지토리 및 서비스 적용
 - 위시 엔티티 매핑, 레파지토리 및 서비스 적용
 - application.properties 설정 및 data.sql 수정
+- E2E api test 작성
+- 

@@ -20,7 +20,7 @@ public class Member {
     @Column(nullable = false)
     private MemberRole role;
 
-    public Member() {
+    protected Member() {
     }
 
     private Member(Long id, String email, String password, MemberRole role) {
@@ -60,17 +60,5 @@ public class Member {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public void setRole(MemberRole role) {
-        this.role = role;
     }
 }

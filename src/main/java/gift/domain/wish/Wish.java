@@ -49,8 +49,16 @@ public class Wish {
         return id;
     }
 
+    public Member getMember() {
+        return member;
+    }
+
     public Long getMemberId() {
         return member.getId();
+    }
+
+    public Product getProduct() {
+        return product;
     }
 
     public Long getProductId() {
@@ -65,15 +73,7 @@ public class Wish {
         this.id = id;
     }
 
-    public void setMember(Member member) {
-        this.member = member;
-    }
-
-    public void setProduct(Product product) {
-        this.product = product;
-    }
-
-    public void setQuantity(Integer quantity) {
-        this.quantity = quantity;
+    public boolean isOwner(Long id) {
+        return getMemberId().equals(id);
     }
 }

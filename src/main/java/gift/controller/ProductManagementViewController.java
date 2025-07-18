@@ -2,6 +2,7 @@ package gift.controller;
 
 import gift.domain.product.ProductQueryOption;
 import gift.service.ProductService;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,7 +21,7 @@ public class ProductManagementViewController {
 
     @GetMapping("/home")
     public String home(Model model) {
-        model.addAttribute("products", productService.getList(ProductQueryOption.SELLING));
+        model.addAttribute("products", productService.getList(PageRequest.of(0, 20), ProductQueryOption.SELLING));
         return "management/home";
     }
 

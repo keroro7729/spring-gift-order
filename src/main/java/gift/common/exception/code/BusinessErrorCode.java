@@ -4,7 +4,8 @@ import gift.common.exception.ErrorCode;
 
 public enum BusinessErrorCode implements ErrorCode {
     PRODUCT_NOT_SELLING("BUS-001"),
-    REGISTER_EMAIL_CONFLICT("BUS-002");
+    REGISTER_EMAIL_CONFLICT("BUS-002"),
+    UNKNOWN_PRODUCT_QUERY_OPTION("BUS-003");
 
     private final String code;
 

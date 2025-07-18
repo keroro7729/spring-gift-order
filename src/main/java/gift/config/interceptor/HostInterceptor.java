@@ -2,8 +2,11 @@ package gift.config.interceptor;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
+
+import java.util.Arrays;
 
 @Component
 public class HostInterceptor implements HandlerInterceptor {
@@ -12,10 +15,20 @@ public class HostInterceptor implements HandlerInterceptor {
             "localhost:8080"
     };
 
+    private final Environment env;
+
+    public HostInterceptor(Environment env) {
+        this.env = env;
+    }
+
     @Override
     public boolean preHandle(HttpServletRequest request,
                              HttpServletResponse response,
                              Object handler) {
+        if (Arrays.asList(env.getActiveProfiles()).contains("test")) {
+            return true;
+        }
+
         String hostHeader = request.getHeader("Host");
 
         if (hostHeader == null) {

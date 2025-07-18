@@ -6,6 +6,7 @@ import gift.common.dto.response.WishResponseDto;
 import gift.domain.member.Member;
 import gift.service.WishService;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,8 +29,9 @@ public class WishController {
     }
 
     @GetMapping
-    public ResponseEntity<List<WishResponseDto>> getMyWishList(@CurrentMember Member member) {
-        List<WishResponseDto> response = wishService.getOwnList(member);
+    public ResponseEntity<List<WishResponseDto>> getMyWishList(Pageable pageable,
+                                                               @CurrentMember Member member) {
+        List<WishResponseDto> response = wishService.getOwnList(pageable, member);
         return ResponseEntity.ok(response);
     }
 

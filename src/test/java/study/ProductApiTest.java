@@ -1,5 +1,6 @@
 package study;
 
+import gift.Application;
 import gift.common.dto.request.ProductRequestDto;
 import gift.common.dto.response.MessageResponseDto;
 import gift.common.dto.response.ProductResponseDto;
@@ -9,6 +10,7 @@ import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.client.RestClient;
 
 import java.io.IOException;
@@ -18,15 +20,19 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
-@SpringBootTest(webEnvironment = RANDOM_PORT)
-public class ApplicationTest {
+@ActiveProfiles("test")
+@SpringBootTest(
+        webEnvironment = RANDOM_PORT,
+        classes = Application.class
+)
+public class ProductApiTest {
 
     private final RestClient client = RestClient.builder().build();
     private final List<ProductResponseDto> predefined = new ArrayList<>();
     @LocalServerPort
     private int port;
 
-    public ApplicationTest() {
+    public ProductApiTest() {
         predefined.add(new ProductResponseDto(1L, "아메리카노", 3000L, "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR3bgpr9EPuJ47gcYCWg7jrEXJ3M15nEXZ9WdKpUsF11wMJFwIPXpOtIkDwoTUUi8_S_WbVTmcus1R7oEx0ongOCiJtjK8iLm-JxAp4swI_-Q", "판매중"));
         predefined.add(new ProductResponseDto(2L, "카페라떼", 4000L, "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSjYwdtYk0ww-YSRxAG1stQYFuTT6K2D5lQcQ&s", "판매중"));
         predefined.add(new ProductResponseDto(3L, "모카", 5000L, "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRkd11qAyK1kPY8z6tpvKO4KM97cTpCphVeOQ&s", "판매중"));
