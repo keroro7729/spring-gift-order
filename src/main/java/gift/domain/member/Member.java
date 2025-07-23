@@ -25,8 +25,11 @@ public class Member {
 
     private Member(Long id, String email, String password, MemberRole role) {
         this.id = id;
+        validateEmail(email);
         this.email = email;
+        validatePassword(password);
         this.password = password;
+        validateRole(role);
         this.role = role;
     }
 
@@ -35,7 +38,7 @@ public class Member {
     }
 
     public static Member createTemp(String email, String password) {
-        return of(null, email, password, MemberRole.USER);
+        return new Member(null, email, password, MemberRole.USER);
     }
 
     public Long getId() {
@@ -60,5 +63,26 @@ public class Member {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    private void validateEmail(String email) {
+        if (email == null || email.isBlank()) {
+            throw new MemberDomainRuleException("이메일은 필수입니다.");
+        }
+        if (!email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$")) {
+            throw new MemberDomainRuleException("이메일 형식이 아닙니다: "+email);
+        }
+    }
+
+    private void validatePassword(String password) {
+        if (password == null || password.isBlank()) {
+            throw new MemberDomainRuleException("비밀번호에 null 또는 빈값이 할당됨!!");
+        }
+    }
+
+    private void validateRole(MemberRole role) {
+        if (role == null) {
+            throw new MemberDomainRuleException("Member Role이 설정되지 않았습니다. null");
+        }
     }
 }

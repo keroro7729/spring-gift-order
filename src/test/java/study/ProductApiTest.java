@@ -2,6 +2,7 @@ package study;
 
 import gift.Application;
 import gift.common.dto.request.ProductRequestDto;
+import gift.common.dto.request.ProductUpdateRequestDto;
 import gift.common.dto.response.MessageResponseDto;
 import gift.common.dto.response.ProductResponseDto;
 import org.junit.jupiter.api.Test;
@@ -45,7 +46,7 @@ public class ProductApiTest {
         var response = client.post()
                 .uri(url)
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(new ProductRequestDto("coffee", 3500L, "test-url"))
+                .body(new ProductRequestDto("coffee", 3500L, "test-url", "옵션1", 1000))
                 .retrieve()
                 .toEntity(new ParameterizedTypeReference<MessageResponseDto<ProductResponseDto>>() {
                 });
@@ -78,7 +79,7 @@ public class ProductApiTest {
         var response = client.put()
                 .uri(url)
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(new ProductRequestDto("coffee", 3500L, "test-url"))
+                .body(new ProductUpdateRequestDto("coffee", 3500L, "test-url"))
                 .retrieve()
                 .toEntity(new ParameterizedTypeReference<MessageResponseDto<ProductResponseDto>>() {
                 });
@@ -86,13 +87,6 @@ public class ProductApiTest {
 
         var data = response.getBody().data();
         assertBody(data, 2L, "coffee", 3500L, "test-url");
-
-        // reset
-        var reset = predefined.get(1);
-        client.put()
-                .uri(url)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(new ProductRequestDto(reset.name(), reset.price(), reset.imageUrl()));
     }
 
     @Test
@@ -114,7 +108,7 @@ public class ProductApiTest {
         var response_put = client.put()
                 .uri(url)
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(new ProductRequestDto("name", 0L, "test-url"))
+                .body(new ProductRequestDto("name", 0L, "test-url", "옵션1", 1000))
                 .exchange((req, res) -> res);
         var response_delete = client.delete()
                 .uri(url)
@@ -141,7 +135,7 @@ public class ProductApiTest {
             var response = client.post()
                     .uri(url)
                     .contentType(MediaType.APPLICATION_JSON)
-                    .body(new ProductRequestDto(name, 0L, "test-url"))
+                    .body(new ProductRequestDto(name, 0L, "test-url", "옵션1", 1000))
                     .exchange((req, res) -> res);
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         }
@@ -153,7 +147,7 @@ public class ProductApiTest {
         var response = client.post()
                 .uri(url)
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(new ProductRequestDto("카카오_관련상품", 1000000L, "test-url"))
+                .body(new ProductRequestDto("카카오_관련상품", 1000000L, "test-url", "옵션1", 1000))
                 .retrieve()
                 .toEntity(MessageResponseDto.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.ACCEPTED);

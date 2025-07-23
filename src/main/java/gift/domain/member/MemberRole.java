@@ -15,7 +15,7 @@ public enum MemberRole {
                 return role;
             }
         }
-        throw new MemberRoleException("Undefined member role name: " + roleName);
+        throw new MemberDomainRuleException("Undefined member role name: " + roleName);
     }
 
     public String getRoleName() {

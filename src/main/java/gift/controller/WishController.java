@@ -7,6 +7,7 @@ import gift.domain.member.Member;
 import gift.service.WishService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,7 +30,7 @@ public class WishController {
     }
 
     @GetMapping
-    public ResponseEntity<List<WishResponseDto>> getMyWishList(Pageable pageable,
+    public ResponseEntity<List<WishResponseDto>> getMyWishList(@PageableDefault(sort = "id") Pageable pageable,
                                                                @CurrentMember Member member) {
         List<WishResponseDto> response = wishService.getOwnList(pageable, member);
         return ResponseEntity.ok(response);

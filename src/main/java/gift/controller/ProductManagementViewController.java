@@ -21,7 +21,7 @@ public class ProductManagementViewController {
 
     @GetMapping("/home")
     public String home(Model model) {
-        model.addAttribute("products", productService.getList(PageRequest.of(0, 20), ProductQueryOption.SELLING));
+        model.addAttribute("products", productService.getSelling(PageRequest.of(0, 20)));
         return "management/home";
     }
 

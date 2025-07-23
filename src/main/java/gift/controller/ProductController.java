@@ -1,12 +1,19 @@
 package gift.controller;
 
+import gift.common.dto.request.ProductOptionRequestDto;
 import gift.common.dto.request.ProductRequestDto;
+import gift.common.dto.request.ProductUpdateRequestDto;
 import gift.common.dto.response.MessageResponseDto;
+import gift.common.dto.response.ProductOptionResponseDto;
 import gift.common.dto.response.ProductResponseDto;
+import gift.common.exception.BusinessException;
+import gift.common.exception.code.BusinessErrorCode;
 import gift.domain.product.ProductQueryOption;
 import gift.service.ProductService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -42,14 +49,23 @@ public class ProductController {
 
     @GetMapping
     public ResponseEntity<List<ProductResponseDto>> getAllProduct(@RequestParam(defaultValue = "SELLING") ProductQueryOption option,
-                                                                  Pageable pageable) {
-        List<ProductResponseDto> response = productService.getList(pageable, option);
+                                                                  @PageableDefault(sort = "id") Pageable pageable) {
+        List<ProductResponseDto> response;
+        switch (option) {
+            case ALL -> response = productService.getAll(pageable);
+            case SELLING -> response = productService.getSelling(pageable);
+            default -> throw BusinessException.of(
+                    BusinessErrorCode.UNKNOWN_PRODUCT_QUERY_OPTION,
+                    "Unknown product query option: " + option.name(),
+                    HttpStatus.BAD_REQUEST
+            );
+        }
         return ResponseEntity.ok(response);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<MessageResponseDto<ProductResponseDto>> updateProduct(@PathVariable Long id,
-                                                                                @RequestBody ProductRequestDto body) {
+                                                                                @Valid @RequestBody ProductUpdateRequestDto body) {
         MessageResponseDto<ProductResponseDto> response = productService.update(id, body);
         if (response.success()) {
             return ResponseEntity.ok(response);
@@ -60,6 +76,27 @@ public class ProductController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
         productService.delete(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{productId}/options")
+    public ResponseEntity<ProductOptionResponseDto> addOptionTo(@PathVariable Long productId,
+                                                                @Valid @RequestBody ProductOptionRequestDto body) {
+        ProductOptionResponseDto created = ProductOptionResponseDto.from(productService.addOptionTo(productId, body));
+        String location = "/api/products/" + productId + "/options";
+        return ResponseEntity.created(URI.create(location)).body(created);
+    }
+
+    @GetMapping("/{productId}/options")
+    public ResponseEntity<List<ProductOptionResponseDto>> getOptionsOf(@PathVariable Long productId) {
+        List<ProductOptionResponseDto> response = productService.getOptionsOf(productId);
+        return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/{productId}/options/{optionId}")
+    public ResponseEntity<Void> deleteOptionOf(@PathVariable Long productId,
+                                               @PathVariable Long optionId) {
+        productService.deleteOptionOf(productId, optionId);
         return ResponseEntity.noContent().build();
     }
 }
