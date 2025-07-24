@@ -1,5 +1,6 @@
 package gift.controller;
-import gift.external.kakao.GetTokenResponseDto;
+import gift.external.kakao.response.GetMemberIdResponseDto;
+import gift.external.kakao.response.GetTokenResponseDto;
 import gift.external.kakao.KakaoApiClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -41,9 +42,9 @@ public class KakaoOauthController {
 
     @GetMapping("/register")
     public ResponseEntity<Void> authorization(@RequestParam String code) {
-        ResponseEntity<GetTokenResponseDto> response = kakaoClient.requestToken(redirectRegister, code);
+        ResponseEntity<GetTokenResponseDto> tokenResponse = kakaoClient.requestToken(redirectRegister, code);
+        ResponseEntity<GetMemberIdResponseDto> idResponse = kakaoClient.requestMemberId(tokenResponse.getBody().access_token());
         // 맴버 생성 및 access-token, refresh-token 저장
-        // 응답 토큰으로 사용자 정보 요청
         // 사용자 정보로 jwt 발급
         return null;
     }
