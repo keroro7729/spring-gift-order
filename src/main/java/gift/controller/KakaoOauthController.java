@@ -27,25 +27,33 @@ public class KakaoOauthController {
     }
 
     @GetMapping("/register/code")
-    public ResponseEntity<Void> register() {
+    public ResponseEntity<Void> registerCode() {
         return ResponseEntity.status(HttpStatus.TEMPORARY_REDIRECT)
                 .header("Location", getKakaoAuthUrl(redirectRegister))
                 .build();
     }
 
     @GetMapping("/login/code")
-    public ResponseEntity<Void> login() {
+    public ResponseEntity<Void> loginCode() {
         return ResponseEntity.status(HttpStatus.TEMPORARY_REDIRECT)
                 .header("Location", getKakaoAuthUrl(redirectLogin))
                 .build();
     }
 
     @GetMapping("/register")
-    public ResponseEntity<Void> authorization(@RequestParam String code) {
+    public ResponseEntity<Void> register(@RequestParam String code) {
         ResponseEntity<GetTokenResponseDto> tokenResponse = kakaoClient.requestToken(redirectRegister, code);
         ResponseEntity<GetMemberIdResponseDto> idResponse = kakaoClient.requestMemberId(tokenResponse.getBody().access_token());
-        // 맴버 생성 및 access-token, refresh-token 저장
+        // 카카오 맴버 생성 및 access-token, refresh-token 저장
         // 사용자 정보로 jwt 발급
+        return null;
+    }
+
+    @GetMapping("/login")
+    public ResponseEntity<Void> login(@RequestParam String code) {
+        ResponseEntity<GetTokenResponseDto> tokenResponse = kakaoClient.requestToken(redirectRegister, code);
+        ResponseEntity<GetMemberIdResponseDto> idResponse = kakaoClient.requestMemberId(tokenResponse.getBody().access_token());
+        // 카카오 맴버
         return null;
     }
 

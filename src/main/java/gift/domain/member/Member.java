@@ -10,20 +10,30 @@ public class Member {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
+    @Column(unique = true)
     private String email;
 
-    @Column(nullable = false)
+    @Column
     private String password;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private MemberRole role;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private MemberProvider provider;
+
+    @Column
+    private Long providerId;
+
+    @OneToOne(mappedBy = "member", cascade = CascadeType.ALL)
+    private MemberKakaoToken kakaoToken;
+
     protected Member() {
     }
 
-    private Member(Long id, String email, String password, MemberRole role) {
+    private Member(Long id, String email, String password, MemberRole role, MemberProvider provider, Long providerId, MemberKakaoToken kakaoToken) {
         this.id = id;
         validateEmail(email);
         this.email = email;
@@ -31,14 +41,20 @@ public class Member {
         this.password = password;
         validateRole(role);
         this.role = role;
-    }
-
-    public static Member of(Long id, String email, String password, MemberRole role) {
-        return new Member(id, email, password, role);
+        validateProvider(provider);
+        this.provider = provider;
+        this.providerId = providerId;
+        this.kakaoToken = kakaoToken;
     }
 
     public static Member createTemp(String email, String password) {
-        return new Member(null, email, password, MemberRole.USER);
+        return new Member(null, email, password, MemberRole.USER, MemberProvider.LOCAL, null, null);
+    }
+
+    public static Member createKakaoInstance(Long providerId, MemberKakaoToken kakaoToken) {
+        Member created = new Member(null, null, null, MemberRole.USER, MemberProvider.KAKAO, providerId, kakaoToken);
+        kakaoToken.setMember(created);
+        return created;
     }
 
     public Long getId() {
@@ -61,21 +77,37 @@ public class Member {
         return role.getRoleName();
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public String getKakaoAccessToken() {
+        checkKakaoTokenInstance();
+        return kakaoToken.getAccessToken();
+    }
+
+    public String getKakaoRefreshToken() {
+        checkKakaoTokenInstance();
+        return kakaoToken.getRefreshToken();
+    }
+
+    public void refresh(String accessToken) {
+        kakaoToken.refresh(accessToken);
+    }
+
+    public void refresh(String accessToken, String refreshToken) {
+        kakaoToken.refresh(accessToken, refreshToken);
     }
 
     private void validateEmail(String email) {
-        if (email == null || email.isBlank()) {
+        if (email == null) return;
+        if (email.isBlank()) {
             throw new MemberDomainRuleException("이메일은 필수입니다.");
         }
         if (!email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$")) {
-            throw new MemberDomainRuleException("이메일 형식이 아닙니다: "+email);
+            throw new MemberDomainRuleException("이메일 형식이 아닙니다: " + email);
         }
     }
 
     private void validatePassword(String password) {
-        if (password == null || password.isBlank()) {
+        if (password == null) return;
+        if (password.isBlank()) {
             throw new MemberDomainRuleException("비밀번호에 null 또는 빈값이 할당됨!!");
         }
     }
@@ -83,6 +115,18 @@ public class Member {
     private void validateRole(MemberRole role) {
         if (role == null) {
             throw new MemberDomainRuleException("Member Role이 설정되지 않았습니다. null");
+        }
+    }
+
+    private void validateProvider(MemberProvider provider) {
+        if (provider == null) {
+            throw new MemberDomainRuleException("Member Provider가 설정되지 않았습니다. null");
+        }
+    }
+
+    private void checkKakaoTokenInstance() {
+        if (kakaoToken == null) {
+            throw new MemberDomainRuleException("카카오 회원가입 사용자가 아님: kakaoToken = null");
         }
     }
 }
