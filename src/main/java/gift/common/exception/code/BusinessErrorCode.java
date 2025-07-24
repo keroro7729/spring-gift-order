@@ -7,6 +7,7 @@ public enum BusinessErrorCode implements ErrorCode {
     REGISTER_EMAIL_CONFLICT("BUS-002"),
     UNKNOWN_PRODUCT_QUERY_OPTION("BUS-003"),
     EXCEED_PRODUCT_OPTION_QUANTITY("BUS-004"),
+    REGISTER_KAKAO_ID_CONFLICT("BUS-005")
     ;
 
     private final String code;

@@ -20,10 +20,9 @@ public class JwtUtil {
     private final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
     private final long expirationMs = 1000 * 60 * 60;
 
-    public String createToken(String email, String role) {
+    public String createToken(String subject) {
         return Jwts.builder()
-                .setSubject(email)
-                .claim("role", role)
+                .setSubject(subject)
                 .setExpiration(new Date(System.currentTimeMillis() + expirationMs))
                 .signWith(key)
                 .compact();

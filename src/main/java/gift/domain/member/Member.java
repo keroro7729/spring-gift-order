@@ -3,7 +3,7 @@ package gift.domain.member;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "member")
+@Table(name = "member", uniqueConstraints = @UniqueConstraint(columnNames = {"provider", "provider_id"}))
 public class Member {
 
     @Id
@@ -75,6 +75,10 @@ public class Member {
 
     public String getRoleName() {
         return role.getRoleName();
+    }
+
+    public Long getProviderId() {
+        return providerId;
     }
 
     public String getKakaoAccessToken() {

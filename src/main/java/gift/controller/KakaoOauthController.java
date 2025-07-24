@@ -1,11 +1,15 @@
 package gift.controller;
+import gift.common.dto.response.TokenResponseDto;
 import gift.external.kakao.response.GetMemberIdResponseDto;
 import gift.external.kakao.response.GetTokenResponseDto;
 import gift.external.kakao.KakaoApiClient;
+import gift.service.MemberService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.net.URI;
 
 @RestController
 @RequestMapping("/api/oauth/kakao")
@@ -22,8 +26,11 @@ public class KakaoOauthController {
 
     private final KakaoApiClient kakaoClient;
 
-    public KakaoOauthController(KakaoApiClient kakaoClient) {
+    private final MemberService memberService;
+
+    public KakaoOauthController(KakaoApiClient kakaoClient, MemberService memberService) {
         this.kakaoClient = kakaoClient;
+        this.memberService = memberService;
     }
 
     @GetMapping("/register/code")
@@ -41,20 +48,19 @@ public class KakaoOauthController {
     }
 
     @GetMapping("/register")
-    public ResponseEntity<Void> register(@RequestParam String code) {
-        ResponseEntity<GetTokenResponseDto> tokenResponse = kakaoClient.requestToken(redirectRegister, code);
-        ResponseEntity<GetMemberIdResponseDto> idResponse = kakaoClient.requestMemberId(tokenResponse.getBody().access_token());
-        // 카카오 맴버 생성 및 access-token, refresh-token 저장
-        // 사용자 정보로 jwt 발급
-        return null;
+    public ResponseEntity<TokenResponseDto> register(@RequestParam String code) {
+        GetTokenResponseDto tokenResponse = kakaoClient.requestToken(redirectRegister, code).getBody();
+        GetMemberIdResponseDto idResponse = kakaoClient.requestMemberId(tokenResponse.access_token()).getBody();
+        TokenResponseDto response = memberService.kakaoRegister(idResponse.id(), tokenResponse.access_token(), tokenResponse.refresh_token());
+        return ResponseEntity.created(URI.create("")).body(response);
     }
 
     @GetMapping("/login")
-    public ResponseEntity<Void> login(@RequestParam String code) {
-        ResponseEntity<GetTokenResponseDto> tokenResponse = kakaoClient.requestToken(redirectRegister, code);
-        ResponseEntity<GetMemberIdResponseDto> idResponse = kakaoClient.requestMemberId(tokenResponse.getBody().access_token());
-        // 카카오 맴버
-        return null;
+    public ResponseEntity<TokenResponseDto> login(@RequestParam String code) {
+        GetTokenResponseDto tokenResponse = kakaoClient.requestToken(redirectRegister, code).getBody();
+        GetMemberIdResponseDto idResponse = kakaoClient.requestMemberId(tokenResponse.access_token()).getBody();
+        TokenResponseDto response = memberService.kakaoLogin(idResponse.id(), tokenResponse.access_token(), tokenResponse.refresh_token());
+        return ResponseEntity.ok(response);
     }
 
     private String getKakaoAuthUrl(String redirectUri) {
