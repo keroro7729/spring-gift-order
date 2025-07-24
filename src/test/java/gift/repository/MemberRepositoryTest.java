@@ -16,7 +16,7 @@ public class MemberRepositoryTest {
 
     @Test
     void testFindByEmail() {
-        Member saved = memberRepository.save(Member.of(null, "find-me@test.com", "asdf123", MemberRole.USER));
+        Member saved = memberRepository.save(Member.createTemp("find-me@test.com", "asdf123"));
 
         Member found = memberRepository.findByEmail(saved.getEmail())
                 .orElseThrow(() -> new RuntimeException("해당 email의 Member를 찾지 못했습니다: "+saved.getEmail()));

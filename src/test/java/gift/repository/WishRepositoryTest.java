@@ -26,7 +26,7 @@ public class WishRepositoryTest {
 
     @Test
     void testFindByMemberAndProduct() {
-        Member member = Member.of(null, "test@test.com", "asdf1234", MemberRole.USER);
+        Member member = Member.createTemp("test@test.com", "asdf1234");
         Product product = Product.of(null, "상품", 1000L, null, ProductState.TEMP);
         entityManager.persist(member);
         entityManager.persist(product);
@@ -45,7 +45,7 @@ public class WishRepositoryTest {
 
     @Test
     void testFindAllByMember() {
-        Member member = Member.of(null, "test@test.com", "asdf1234", MemberRole.USER);
+        Member member = Member.createTemp("test@test.com", "asdf1234");
         Product product = Product.of(null, "상품", 1000L, null, ProductState.TEMP);
         entityManager.persist(member);
         entityManager.persist(product);
