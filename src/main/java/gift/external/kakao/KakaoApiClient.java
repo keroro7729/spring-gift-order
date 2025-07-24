@@ -7,6 +7,8 @@ import gift.external.kakao.request.RefreshRequestDto;
 import gift.external.kakao.response.GetMemberIdResponseDto;
 import gift.external.kakao.response.GetTokenResponseDto;
 import gift.external.kakao.response.RefreshResponseDto;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -18,64 +20,72 @@ import org.springframework.web.client.RestClientException;
 @Component
 public class KakaoApiClient {
 
-    private RestClient client;
+    private static final Logger log = LoggerFactory.getLogger(KakaoApiClient.class);
+    private RestClient.Builder builder;
 
     @Value("${kakao.client-id}")
     private String clientId;
 
     public KakaoApiClient(RestClient.Builder builder) {
-        this.client = builder.baseUrl("https://kauth.kakao.com").build();
+        this.builder = builder;
     }
 
     public ResponseEntity<GetTokenResponseDto> requestToken(String redirectUri, String code) {
+        RestClient client = builder.baseUrl("https://kauth.kakao.com").build();
         GetTokenRequestDto request = GetTokenRequestDto.of(clientId, redirectUri, code);
         try {
             return client.post()
                     .uri("/oauth/token")
                     .header("Content-Type", "application/x-www-form-urlencoded;charset=utf-8")
-                    .body(request)
+                    .body(request.toBodyForm())
                     .retrieve()
                     .toEntity(GetTokenResponseDto.class);
         } catch (HttpClientErrorException | HttpServerErrorException e) {
+            log.error("KAKAO/oauth/token fail detail: ", e);
             throw BusinessException.internal(ExternalErrorCode.KAKAO_OAUTH_TOKEN_FAIL,
-                    "KAKAO/oauth/token 요청 실패: "+e.getMessage());
+                    "KAKAO/oauth/token 요청 실패: " + e.getMessage());
         } catch (RestClientException e) {
             throw BusinessException.internal(ExternalErrorCode.KAKAO_OAUTH_TOKEN_NETWORK_FAIL,
-                    "네트워크 오류: "+e.getMessage());
+                    "네트워크 오류: " + e.getMessage());
         }
     }
 
     public ResponseEntity<GetMemberIdResponseDto> requestMemberId(String accessToken) {
-        try{
+        RestClient client = builder.baseUrl("https://kapi.kakao.com").build();
+        try {
             return client.get()
                     .uri("/v1/user/access_token_info")
-                    .header("Authorization", "Bearer "+accessToken)
+                    .header("Authorization", "Bearer " + accessToken)
                     .retrieve()
                     .toEntity(GetMemberIdResponseDto.class);
         } catch (HttpClientErrorException | HttpServerErrorException e) {
+            log.error("KAKAO/oauth/token fail detail: ", e);
+            log.error("Check accessToken!!: " + accessToken);
             throw BusinessException.internal(ExternalErrorCode.KAKAO_OAUTH_TOKEN_FAIL,
-                    "KAKAO/oauth/token 요청 실패: "+e.getMessage());
+                    "KAKAO/oauth/token 요청 실패: " + e.getMessage());
         } catch (RestClientException e) {
             throw BusinessException.internal(ExternalErrorCode.KAKAO_OAUTH_TOKEN_NETWORK_FAIL,
-                    "네트워크 오류: "+e.getMessage());
+                    "네트워크 오류: " + e.getMessage());
         }
     }
 
     public ResponseEntity<RefreshResponseDto> requestRefresh(String refreshToken) {
+        RestClient client = builder.baseUrl("https://kauth.kakao.com").build();
         RefreshRequestDto request = RefreshRequestDto.of(clientId, refreshToken);
-        try{
+        try {
             return client.post()
                     .uri("/oauth/token")
                     .header("Content-Type", "application/x-www-form-urlencoded;charset=utf-8")
-                    .body(request)
+                    .body(request.toBodyForm())
                     .retrieve()
                     .toEntity(RefreshResponseDto.class);
         } catch (HttpClientErrorException | HttpServerErrorException e) {
+            log.error("KAKAO/oauth/token fail detail: ", e);
             throw BusinessException.internal(ExternalErrorCode.KAKAO_OAUTH_TOKEN_FAIL,
-                    "KAKAO/oauth/token 요청 실패: "+e.getMessage());
+                    "KAKAO/oauth/token 요청 실패: " + e.getMessage());
         } catch (RestClientException e) {
             throw BusinessException.internal(ExternalErrorCode.KAKAO_OAUTH_TOKEN_NETWORK_FAIL,
-                    "네트워크 오류: "+e.getMessage());
+                    "네트워크 오류: " + e.getMessage());
         }
     }
 }
