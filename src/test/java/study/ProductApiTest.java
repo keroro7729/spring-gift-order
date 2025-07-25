@@ -5,7 +5,10 @@ import gift.common.dto.request.ProductRequestDto;
 import gift.common.dto.request.ProductUpdateRequestDto;
 import gift.common.dto.response.MessageResponseDto;
 import gift.common.dto.response.ProductResponseDto;
+import org.assertj.core.api.SoftAssertions;
+import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.core.ParameterizedTypeReference;
@@ -26,6 +29,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
         webEnvironment = RANDOM_PORT,
         classes = Application.class
 )
+@ExtendWith(SoftAssertionsExtension.class)
 public class ProductApiTest {
 
     private final RestClient client = RestClient.builder().build();
@@ -41,7 +45,7 @@ public class ProductApiTest {
     }
 
     @Test
-    void 상품_생성시_201과_생성된_상품정보_반환() {
+    void 상품_생성시_201과_생성된_상품정보_반환(SoftAssertions softly) {
         var url = "http://localhost:" + port + "/api/products";
         var response = client.post()
                 .uri(url)
@@ -50,19 +54,19 @@ public class ProductApiTest {
                 .retrieve()
                 .toEntity(new ParameterizedTypeReference<MessageResponseDto<ProductResponseDto>>() {
                 });
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        softly.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
 
         var locationId = response.getHeaders().getLocation().toString().split("/")[3];
         var expectedId = Long.parseLong(locationId);
         var data = response.getBody().data();
-        assertBody(data, expectedId, "coffee", 3500L, "test-url");
+        assertBody(softly, data, expectedId, "coffee", 3500L, "test-url");
 
         // reset
         client.delete().uri(url + "/" + expectedId);
     }
 
     @Test
-    void 상품_조회시_200과_해당_상품정보_반환() {
+    void 상품_조회시_200과_해당_상품정보_반환(SoftAssertions softly) {
         var url = "http://localhost:" + port + "/api/products/1";
         var response = client.get()
                 .uri(url)
@@ -70,11 +74,11 @@ public class ProductApiTest {
                 .toEntity(ProductResponseDto.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         var expected = predefined.get(0);
-        assertBody(response.getBody(), expected.id(), expected.name(), expected.price(), expected.imageUrl());
+        assertBody(softly, response.getBody(), expected.id(), expected.name(), expected.price(), expected.imageUrl());
     }
 
     @Test
-    void 상품_수정시_200과_수정된_상품정보_반환() {
+    void 상품_수정시_200과_수정된_상품정보_반환(SoftAssertions softly) {
         var url = "http://localhost:" + port + "/api/products/2";
         var response = client.put()
                 .uri(url)
@@ -83,24 +87,24 @@ public class ProductApiTest {
                 .retrieve()
                 .toEntity(new ParameterizedTypeReference<MessageResponseDto<ProductResponseDto>>() {
                 });
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        softly.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 
         var data = response.getBody().data();
-        assertBody(data, 2L, "coffee", 3500L, "test-url");
+        assertBody(softly, data, 2L, "coffee", 3500L, "test-url");
     }
 
     @Test
-    void 상품_삭제시_204_반환() {
+    void 상품_삭제시_204_반환(SoftAssertions softly) {
         var url = "http://localhost:" + port + "/api/products/3";
         var response = client.delete()
                 .uri(url)
                 .retrieve()
                 .toBodilessEntity();
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+        softly.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
     }
 
     @Test
-    void 존재하지_않는_ID로_접근시_404반환() throws IOException {
+    void 존재하지_않는_ID로_접근시_404반환(SoftAssertions softly) throws IOException {
         var url = "http://localhost:" + port + "/api/products/100";
         var response_get = client.get()
                 .uri(url)
@@ -114,19 +118,19 @@ public class ProductApiTest {
                 .uri(url)
                 .exchange((req, res) -> res);
 
-        assertThat(response_get.getStatusCode())
+        softly.assertThat(response_get.getStatusCode())
                 .as("GET 요청시 404 반환 여부 확인")
                 .isEqualTo(HttpStatus.NOT_FOUND);
-        assertThat(response_put.getStatusCode())
+        softly.assertThat(response_put.getStatusCode())
                 .as("PUT 요청시 404 반환 여부 확인")
                 .isEqualTo(HttpStatus.NOT_FOUND);
-        assertThat(response_delete.getStatusCode())
+        softly.assertThat(response_delete.getStatusCode())
                 .as("DELETE 요청시 404 반환 여부 확인")
                 .isEqualTo(HttpStatus.NOT_FOUND);
     }
 
     @Test
-    void 잘못된_이름의_상품_생성시_400반환() throws IOException {
+    void 잘못된_이름의_상품_생성시_400반환(SoftAssertions softly) throws IOException {
         var url = "http://localhost:" + port + "/api/products";
         String[] badNames = {"길이 15 초과 상품 1234", "상품!", "상품@", "상품#", "상품$", "상품%", "상품^", "상품*", "상품=",
                 "상품~", "상품`", "상품{", "상품}", "상품\\", "상품|", "상품;", "상품:", "상품?"};
@@ -137,12 +141,12 @@ public class ProductApiTest {
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(new ProductRequestDto(name, 0L, "test-url", "옵션1", 1000))
                     .exchange((req, res) -> res);
-            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+            softly.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         }
     }
 
     @Test
-    void 카카오가_포함된_이름의_상품_생성시_202반환() {
+    void 카카오가_포함된_이름의_상품_생성시_202반환(SoftAssertions softly) {
         var url = "http://localhost:" + port + "/api/products";
         var response = client.post()
                 .uri(url)
@@ -150,13 +154,13 @@ public class ProductApiTest {
                 .body(new ProductRequestDto("카카오_관련상품", 1000000L, "test-url", "옵션1", 1000))
                 .retrieve()
                 .toEntity(MessageResponseDto.class);
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.ACCEPTED);
+        softly.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.ACCEPTED);
     }
 
-    private void assertBody(ProductResponseDto actual, Long id, String name, Long price, String imageUrl) {
-        assertThat(actual.id()).isEqualTo(id);
-        assertThat(actual.name()).isEqualTo(name);
-        assertThat(actual.price()).isEqualTo(price);
-        assertThat(actual.imageUrl()).isEqualTo(imageUrl);
+    private void assertBody(SoftAssertions softly, ProductResponseDto actual, Long id, String name, Long price, String imageUrl) {
+        softly.assertThat(actual.id()).isEqualTo(id);
+        softly.assertThat(actual.name()).isEqualTo(name);
+        softly.assertThat(actual.price()).isEqualTo(price);
+        softly.assertThat(actual.imageUrl()).isEqualTo(imageUrl);
     }
 }

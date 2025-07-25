@@ -7,10 +7,13 @@ import gift.common.dto.request.MemberRequestDto;
 import gift.common.dto.response.MemberResponseDto;
 import gift.common.dto.response.TokenResponseDto;
 import org.antlr.v4.runtime.Token;
+import org.assertj.core.api.SoftAssertions;
+import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
@@ -28,6 +31,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
         webEnvironment = RANDOM_PORT,
         classes = Application.class
 )
+@ExtendWith(SoftAssertionsExtension.class)
 public class MemberApiTest {
 
     private final RestClient client = RestClient.builder().build();
@@ -56,7 +60,7 @@ public class MemberApiTest {
     }
 
     @Test
-    void 회원가입_성공시_201과_Token반환() {
+    void 회원가입_성공시_201과_Token반환(SoftAssertions softly) {
         String url = "http://localhost:" + port + "/api/members/register";
         MemberRequestDto request = new MemberRequestDto("test-email@naver.com", "testpassword123!@#");
 
@@ -68,13 +72,13 @@ public class MemberApiTest {
                         .retrieve()
                         .toEntity(TokenResponseDto.class);
 
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
-        assertThat(response.getBody().token()).isNotNull();
+        softly.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        softly.assertThat(response.getBody().token()).isNotNull();
         System.out.println("회원가입_성공시_201과_Token반환: token=" + response.getBody().token());
     }
 
     @Test
-    void 로그인_성공시_200과_Token반환() {
+    void 로그인_성공시_200과_Token반환(SoftAssertions softly) {
         String url = "http://localhost:" + port + "/api/members/login";
         MemberRequestDto request = new MemberRequestDto(email, password);
 
@@ -86,8 +90,8 @@ public class MemberApiTest {
                         .retrieve()
                         .toEntity(TokenResponseDto.class);
 
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(response.getBody().token()).isNotNull();
+        softly.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        softly.assertThat(response.getBody().token()).isNotNull();
         System.out.println("로그인_성공시_200과_Token반환: token=" + response.getBody().token());
     }
 }

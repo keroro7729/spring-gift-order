@@ -1,21 +1,28 @@
 package gift.domain.product;
 
+import org.assertj.core.api.SoftAssertions;
+import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+@ExtendWith(SoftAssertionsExtension.class)
 public class ProductOptionTest {
 
     @Test
-    void 초기_생성시_id_product_isNull() {
+    void 초기_생성시_id_product_isNull(SoftAssertions softly) {
         ProductOption option = ProductOption.of("option", 1000);
-        assertThat(option.getId()).isNull();
-        assertThat(option.getProduct()).isNull();
+        softly.assertThat(option.getId())
+                .as("Option 임시 인스턴스 id가 null이 아님")
+                .isNull();
+        softly.assertThat(option.getProduct())
+                .as("Option 임시 인스턴스 product 필드가 null이 아님")
+                .isNull();
     }
 
     @ParameterizedTest
