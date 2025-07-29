@@ -1,4 +1,8 @@
 package gift.external.kakao.response;
 
-public record GetMemberIdResponseDto(Long id, Integer expires_in, Integer app_id ) {
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
+
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+public record GetMemberIdResponseDto(Long id, Integer expiresIn, Integer appId ) {
 }

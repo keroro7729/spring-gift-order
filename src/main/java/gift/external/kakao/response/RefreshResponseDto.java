@@ -1,4 +1,12 @@
 package gift.external.kakao.response;
 
-public record RefreshResponseDto(String token_type, String access_token, Integer expires_in, String refresh_token, String refresh_token_expires_in) {
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
+
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+public record RefreshResponseDto(String tokenType,
+                                 String accessToken,
+                                 Integer expiresIn,
+                                 String refreshToken,
+                                 String refreshTokenExpiresIn) {
 }

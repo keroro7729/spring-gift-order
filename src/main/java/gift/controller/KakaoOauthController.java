@@ -30,13 +30,13 @@ public class KakaoOauthController {
     @GetMapping("/login")
     public ResponseEntity<TokenResponseDto> login(@RequestParam String code) {
         GetTokenResponseDto tokenResponse = kakaoClient.requestToken(code).getBody();
-        GetMemberIdResponseDto idResponse = kakaoClient.requestMemberId(tokenResponse.access_token()).getBody();
+        GetMemberIdResponseDto idResponse = kakaoClient.requestMemberId(tokenResponse.accessToken()).getBody();
 
         if(memberService.isKakaoMemberExist(idResponse.id())) {
-            TokenResponseDto response = memberService.kakaoLogin(idResponse.id(), tokenResponse.access_token(), tokenResponse.refresh_token());
+            TokenResponseDto response = memberService.kakaoLogin(idResponse.id(), tokenResponse.accessToken(), tokenResponse.refreshToken());
             return ResponseEntity.ok(response);
         }
-        TokenResponseDto response = memberService.kakaoRegister(idResponse.id(), tokenResponse.access_token(), tokenResponse.refresh_token());
+        TokenResponseDto response = memberService.kakaoRegister(idResponse.id(), tokenResponse.accessToken(), tokenResponse.refreshToken());
         return ResponseEntity.created(URI.create("")).body(response);
     }
 
