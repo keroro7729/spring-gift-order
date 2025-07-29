@@ -16,6 +16,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 @Service
 public class MemberService {
 
@@ -74,6 +76,10 @@ public class MemberService {
         member.refresh(accessToken, refreshToken);
         String token = jwtUtil.createToken(member.getProviderId().toString());
         return new TokenResponseDto(token);
+    }
+
+    public boolean isKakaoMemberExist(Long providerId) {
+        return memberRepository.findByProviderId(providerId).isPresent();
     }
 
     private Member register(String email, String plainPassword) {

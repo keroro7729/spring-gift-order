@@ -8,15 +8,10 @@ import org.springframework.stereotype.Component;
 public class KakaoProperties {
 
     private String clientId;
-    private String redirectRegister;
     private String redirectLogin;
 
     public String getClientId() {
         return clientId;
-    }
-
-    public String getRedirectRegister() {
-        return redirectRegister;
     }
 
     public String getRedirectLogin() {
@@ -25,10 +20,6 @@ public class KakaoProperties {
 
     public void setClientId(String clientId) {
         this.clientId = clientId;
-    }
-
-    public void setRedirectRegister(String redirectRegister) {
-        this.redirectRegister = redirectRegister;
     }
 
     public void setRedirectLogin(String redirectLogin) {

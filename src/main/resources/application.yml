@@ -28,6 +28,5 @@ spring:
 
 kakao:
   client-id: dummy-client-id
-  redirect-register: http://localhost:8080/api/oauth/kakao/register
   redirect-login: http://localhost:8080/api/oauth/kakao/login
 
