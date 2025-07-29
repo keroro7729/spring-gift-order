@@ -25,7 +25,7 @@ public class Member {
     private MemberProvider provider;
 
     @Column
-    private Long providerId;
+    private String providerId;
 
     @OneToOne(mappedBy = "member", cascade = CascadeType.ALL)
     private MemberKakaoToken kakaoToken;
@@ -33,7 +33,7 @@ public class Member {
     protected Member() {
     }
 
-    private Member(Long id, String email, String password, MemberRole role, MemberProvider provider, Long providerId, MemberKakaoToken kakaoToken) {
+    private Member(Long id, String email, String password, MemberRole role, MemberProvider provider, String providerId, MemberKakaoToken kakaoToken) {
         this.id = id;
         validateEmail(email);
         this.email = email;
@@ -51,7 +51,7 @@ public class Member {
         return new Member(null, email, password, MemberRole.USER, MemberProvider.LOCAL, null, null);
     }
 
-    public static Member createKakaoInstance(Long providerId, MemberKakaoToken kakaoToken) {
+    public static Member createKakaoInstance(String providerId, MemberKakaoToken kakaoToken) {
         Member created = new Member(null, null, null, MemberRole.USER, MemberProvider.KAKAO, providerId, kakaoToken);
         kakaoToken.setMember(created);
         return created;
@@ -77,7 +77,7 @@ public class Member {
         return role.getRoleName();
     }
 
-    public Long getProviderId() {
+    public String getProviderId() {
         return providerId;
     }
 

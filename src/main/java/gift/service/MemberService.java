@@ -54,14 +54,14 @@ public class MemberService {
 
     @Transactional
     public TokenResponseDto kakaoRegister(Long id, String accessToken, String refreshToken) {
-        if (memberRepository.findByProviderId(id).isPresent()) {
+        if (memberRepository.findByProviderId(id.toString()).isPresent()) {
             throw BusinessException.of(BusinessErrorCode.REGISTER_KAKAO_ID_CONFLICT,
                     "이미 가입된 계정입니다.",
                     HttpStatus.CONFLICT);
         }
 
         MemberKakaoToken kakaoToken = MemberKakaoToken.of(accessToken, refreshToken);
-        Member instance = Member.createKakaoInstance(id, kakaoToken);
+        Member instance = Member.createKakaoInstance(id.toString(), kakaoToken);
         Member saved = memberRepository.save(instance);
         String token = jwtUtil.createToken(saved.getProviderId().toString());
         return new TokenResponseDto(token);
@@ -69,7 +69,7 @@ public class MemberService {
 
     @Transactional
     public TokenResponseDto kakaoLogin(Long id, String accessToken, String refreshToken) {
-        Member member = memberRepository.findByProviderId(id)
+        Member member = memberRepository.findByProviderId(id.toString())
                 .orElseThrow(() -> BusinessException.of(SecurityErrorCode.NOT_REGISTERED_KAKAO_MEMBER,
                         "가입되지 않은 카카오 계정입니다.",
                         HttpStatus.BAD_REQUEST));
@@ -79,7 +79,7 @@ public class MemberService {
     }
 
     public boolean isKakaoMemberExist(Long providerId) {
-        return memberRepository.findByProviderId(providerId).isPresent();
+        return memberRepository.findByProviderId(providerId.toString()).isPresent();
     }
 
     private Member register(String email, String plainPassword) {
