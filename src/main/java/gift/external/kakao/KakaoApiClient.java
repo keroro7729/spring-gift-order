@@ -10,6 +10,7 @@ import gift.external.kakao.response.GetTokenResponseDto;
 import gift.external.kakao.response.RefreshResponseDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,11 +25,15 @@ public class KakaoApiClient {
 
     private static final Logger log = LoggerFactory.getLogger(KakaoApiClient.class);
     private final KakaoProperties properties;
-    private RestClient.Builder builder;
+    private RestClient kauthClient;
+    private RestClient kapiClient;
     private final String KAKAO_AUTH_URL;
 
-    public KakaoApiClient(RestClient.Builder builder, KakaoProperties properties) {
-        this.builder = builder;
+    public KakaoApiClient(@Qualifier("kauthClient") RestClient kauthClient,
+                          @Qualifier("kapiClient") RestClient kapiClient,
+                          KakaoProperties properties) {
+        this.kauthClient = kauthClient;
+        this.kapiClient = kapiClient;
         this.properties = properties;
         KAKAO_AUTH_URL = "https://kauth.kakao.com/oauth/authorize?" +
                 "client_id=" + properties.getClientId() +
@@ -37,12 +42,10 @@ public class KakaoApiClient {
     }
 
     public ResponseEntity<GetTokenResponseDto> requestToken(String code) {
-        RestClient client = builder.baseUrl("https://kauth.kakao.com").build();
         GetTokenRequestDto request = GetTokenRequestDto.of(properties.getClientId(), properties.getRedirectLogin(), code);
         try {
-            return client.post()
+            return kauthClient.post()
                     .uri("/oauth/token")
-                    .header(HttpHeaders.CONTENT_TYPE, "application/x-www-form-urlencoded;charset=utf-8")
                     .body(request.toBodyForm())
                     .retrieve()
                     .toEntity(GetTokenResponseDto.class);
@@ -58,9 +61,8 @@ public class KakaoApiClient {
     }
 
     public ResponseEntity<GetMemberIdResponseDto> requestMemberId(String accessToken) {
-        RestClient client = builder.baseUrl("https://kapi.kakao.com").build();
         try {
-            return client.get()
+            return kapiClient.get()
                     .uri("/v1/user/access_token_info")
                     .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
                     .retrieve()
@@ -78,12 +80,10 @@ public class KakaoApiClient {
     }
 
     public ResponseEntity<RefreshResponseDto> requestRefresh(String refreshToken) {
-        RestClient client = builder.baseUrl("https://kauth.kakao.com").build();
         RefreshRequestDto request = RefreshRequestDto.of(properties.getClientId(), refreshToken);
         try {
-            return client.post()
+            return kauthClient.post()
                     .uri("/oauth/token")
-                    .header(HttpHeaders.CONTENT_TYPE, "application/x-www-form-urlencoded;charset=utf-8")
                     .body(request.toBodyForm())
                     .retrieve()
                     .toEntity(RefreshResponseDto.class);
@@ -100,7 +100,7 @@ public class KakaoApiClient {
 
     public ResponseEntity<Void> redirectToKakaoAuth() {
         String redirectUrl = properties.getRedirectLogin();
-        return ResponseEntity.status(HttpStatus.TEMPORARY_REDIRECT)
+        return ResponseEntity.status(HttpStatus.FOUND)
                 .header(HttpHeaders.LOCATION, KAKAO_AUTH_URL)
                 .build();
     }
