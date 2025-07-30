@@ -32,9 +32,8 @@ public class OrderService {
     }
 
     @Transactional
-    public OrderResponseDto order(String kakaoId, Long optionId, Integer quantity, String message) {
-        Member member = memberService.getByKakaoId(kakaoId);
-        Product product = productService.findOptionsOwn(optionId);
+    public OrderResponseDto order(Member member, Long optionId, Integer quantity, String message) {
+        Product product = productService.getOptionsOwn(optionId);
         ProductOption option = product.getOptionById(optionId);
 
         productService.applyOptionSold(optionId, quantity);

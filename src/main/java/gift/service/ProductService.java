@@ -17,7 +17,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -139,9 +138,11 @@ public class ProductService {
         product.removeOption(option);
     }
 
-    public Product findOptionsOwn(Long optionId) {
+    public Product getOptionsOwn(Long optionId) {
         ProductOption option = optionRepository.findById(optionId)
-                .orElseThrow();
+                .orElseThrow(() -> BusinessException.of(ResourceErrorCode.PRODUCT_OPTION_NOT_FOUND,
+                        "존재하지 않는 optionId",
+                        HttpStatus.NOT_FOUND));
         return option.getProduct();
     }
 

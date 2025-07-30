@@ -8,8 +8,4 @@ public record Link(String webUrl, String mobileWebUrl, String androidExecutionPa
     public static Link of(String webUrl) {
         return new Link(webUrl, null, null, null);
     }
-
-    public String toJsonString() {
-        return String.format("{\"web_url\":\"%s\",\"mobile_web_url\":\"%s\"}", webUrl, mobileWebUrl);
-    }
 }

@@ -107,6 +107,7 @@ public class KakaoApiClient {
 
     public ResponseEntity<ResultCodeResponseDto> sendKakaoMessageToMe(String accessToken, String text, String url) {
         TemplateObject request = TemplateObject.of(text, url);
+        System.out.println("CHECK HERE!!: " + request.toFormData());
         try{
             return kapiClient.post()
                     .uri("/v2/api/talk/memo/default/send")
