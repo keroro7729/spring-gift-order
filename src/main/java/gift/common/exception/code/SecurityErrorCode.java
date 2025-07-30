@@ -6,7 +6,9 @@ public enum SecurityErrorCode implements ErrorCode {
     AUTH_MISSING_TOKEN("SEC-001"),
     AUTH_INVALID_TOKEN("SEC-002"),
     AUTH_FORBIDDEN("SEC-003"),
-    LOGIN_EMAIL_NOT_FOUND("SEC-004");
+    LOGIN_EMAIL_NOT_FOUND("SEC-004"),
+    NOT_REGISTERED_KAKAO_MEMBER("SEC-005"),
+    ;
 
     private final String code;
 

@@ -3,7 +3,10 @@ package gift.domain.product;
 import gift.domain.product.Product;
 import gift.domain.product.ProductDomainRuleException;
 import gift.domain.product.ProductState;
+import org.assertj.core.api.SoftAssertions;
+import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.NullSource;
@@ -12,6 +15,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
+@ExtendWith(SoftAssertionsExtension.class)
 public class ProductTest {
 
     @Test
@@ -48,35 +52,39 @@ public class ProductTest {
     }
 
     @Test
-    void 상품이름_카카오_포함여부_검사() {
+    void 상품이름_카카오_포함여부_검사(SoftAssertions softly) {
         Product product = Product.tempInstance("카카오_상품", 1000L, null);
-        assertThat(product.isInvolveKakao()).isEqualTo(true);
+        softly.assertThat(product.isInvolveKakao())
+                .as("카카오_상품 검출 실패")
+                .isEqualTo(true);
 
         product = Product.tempInstance("일반_상품", 1000L, null);
-        assertThat(product.isInvolveKakao()).isEqualTo(false);
+        softly.assertThat(product.isInvolveKakao())
+                .as("일반_상품 검출 오류")
+                .isEqualTo(false);
     }
 
     @Test
-    void addOption() {
+    void addOption(SoftAssertions softly) {
         ProductOption option = ProductOption.of("옵션", 999);
         Product product = Product.create("상품", 1000L, null, option);
 
         ProductOption newOption = ProductOption.of("새로운옵션", 888);
         product.addOption(newOption);
 
-        assertTrue(product.getOptions().contains(newOption), "새로운 옵션 추가 실패");
-        assertEquals(2, product.getOptions().size(), "새로운 옵션 추가 실패");
+        softly.assertThat(product.getOptions().contains(newOption)).isEqualTo(true);
+        softly.assertThat(product.getOptions().size()).isEqualTo(2);
     }
 
     @Test
-    void removeOption() {
+    void removeOption(SoftAssertions softly) {
         Product product = Product.create("상품", 1000L, null, ProductOption.of("test 옵션", 2));
         ProductOption option = ProductOption.of("옵션", 999);
         product.addOption(option);
 
         product.removeOption(option);
 
-        assertFalse(product.getOptions().contains(option), "옵션 삭제 실패");
-        assertEquals(1, product.getOptions().size(), "옵션 삭제 실패");
+        softly.assertThat(product.getOptions().contains(option)).isEqualTo(false);
+        softly.assertThat(product.getOptions().size()).isEqualTo(1);
     }
 }

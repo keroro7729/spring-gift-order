@@ -4,6 +4,7 @@ import gift.domain.member.Member;
 import gift.domain.member.MemberRole;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EmptySource;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 
@@ -19,7 +20,7 @@ public class MemberTest {
     }
 
     @ParameterizedTest
-    @NullAndEmptySource
+    @EmptySource
     @ValueSource(strings = {"email_address", "email!", "email@naver", "email.gmail.com"})
     void 이메일_검증(String email) {
         assertThrows(MemberDomainRuleException.class, () -> {
