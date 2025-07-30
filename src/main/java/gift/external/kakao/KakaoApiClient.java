@@ -19,6 +19,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
+import org.springframework.web.util.UriComponentsBuilder;
 
 @Component
 public class KakaoApiClient {
@@ -27,7 +28,7 @@ public class KakaoApiClient {
     private final KakaoProperties properties;
     private RestClient kauthClient;
     private RestClient kapiClient;
-    private final String KAKAO_AUTH_URL;
+    private final String kakaoAuthUrl;
 
     public KakaoApiClient(@Qualifier("kauthClient") RestClient kauthClient,
                           @Qualifier("kapiClient") RestClient kapiClient,
@@ -35,10 +36,14 @@ public class KakaoApiClient {
         this.kauthClient = kauthClient;
         this.kapiClient = kapiClient;
         this.properties = properties;
-        KAKAO_AUTH_URL = "https://kauth.kakao.com/oauth/authorize?" +
-                "client_id=" + properties.getClientId() +
-                "&redirect_uri=" + properties.getRedirectLogin() +
-                "&response_type=code";
+        this.kakaoAuthUrl = UriComponentsBuilder.newInstance()
+                .scheme("https")
+                .host("kauth.kakao.com")
+                .path("/oauth/authorize")
+                .queryParam("client_id", properties.getClientId())
+                .queryParam("redirect_uri", properties.getRedirectLogin())
+                .queryParam("response_type", "code")
+                .build().toUriString();
     }
 
     public ResponseEntity<GetTokenResponseDto> requestToken(String code) {
@@ -101,7 +106,7 @@ public class KakaoApiClient {
     public ResponseEntity<Void> redirectToKakaoAuth() {
         String redirectUrl = properties.getRedirectLogin();
         return ResponseEntity.status(HttpStatus.FOUND)
-                .header(HttpHeaders.LOCATION, KAKAO_AUTH_URL)
+                .header(HttpHeaders.LOCATION, kakaoAuthUrl)
                 .build();
     }
 }

@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 public record GetTokenResponseDto(
         String tokenType,
         String accessToken,
-        Integer expiresIn,
+        int expiresIn,
         String refreshToken,
         Integer refreshTokenExpiresIn
 ) {

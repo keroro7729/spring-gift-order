@@ -36,13 +36,13 @@ public class Product {
     }
 
     private Product(Long id, String name, Long price, String imageUrl, ProductState state) {
-        this.id = id;
         validateName(name);
-        this.name = name;
         validatePrice(price);
+        validateState(state);
+        this.id = id;
+        this.name = name;
         this.price = price;
         this.imageUrl = imageUrl;
-        validateState(state);
         this.state = state;
     }
 

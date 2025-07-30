@@ -107,3 +107,5 @@
 - KakaoApiClientTest 추가
 - 카카오 메세지 api 요청 메서드 추가
 - 주문 처리로직 추가
+- KakaoProperties 생성자 주입 방식으로 변경
+- 도메인 validate 위치 변경

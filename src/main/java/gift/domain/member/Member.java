@@ -34,14 +34,14 @@ public class Member {
     }
 
     private Member(Long id, String email, String password, MemberRole role, MemberProvider provider, String providerId, MemberKakaoToken kakaoToken) {
-        this.id = id;
         validateEmail(email);
-        this.email = email;
         validatePassword(password);
-        this.password = password;
         validateRole(role);
-        this.role = role;
         validateProvider(provider);
+        this.id = id;
+        this.email = email;
+        this.password = password;
+        this.role = role;
         this.provider = provider;
         this.providerId = providerId;
         this.kakaoToken = kakaoToken;
