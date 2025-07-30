@@ -112,3 +112,4 @@
 - 카카오톡 나에게 메세지 보내기 추가
 - order 도메인 추가
 - order service 주문 처리과정 및 api 추가
+- order 조회 api 추가

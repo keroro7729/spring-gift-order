@@ -1,12 +1,15 @@
 package gift.service;
 
 import gift.common.dto.response.OrderResponseDto;
+import gift.common.exception.BusinessException;
+import gift.common.exception.code.ResourceErrorCode;
 import gift.domain.member.Member;
 import gift.domain.order.Order;
 import gift.domain.product.Product;
 import gift.domain.product.ProductOption;
 import gift.external.kakao.KakaoApiClient;
 import gift.repository.OrderRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -46,6 +49,13 @@ public class OrderService {
         String url = "http://localhost:8080/api/orders/" + order.getId();
         kakaoApiClient.sendKakaoMessageToMe(accessToken, purchaseMessage(product.getName(), option.getName()), url);
         return OrderResponseDto.from(order);
+    }
+
+    public OrderResponseDto get(Long orderId) {
+        return OrderResponseDto.from(orderRepository.findById(orderId)
+                .orElseThrow(() -> BusinessException.of(ResourceErrorCode.ORDER_NOT_FOUND,
+                        "존재하지 않는 orderId로 접근",
+                        HttpStatus.NOT_FOUND)));
     }
 
     private String purchaseMessage(String productName, String optionName) {

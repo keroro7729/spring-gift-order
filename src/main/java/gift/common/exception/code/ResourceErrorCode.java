@@ -7,6 +7,7 @@ public enum ResourceErrorCode implements ErrorCode {
     MEMBER_NOT_FOUND("RES-002"),
     WISH_NOT_FOUND("RES-003"),
     PRODUCT_OPTION_NOT_FOUND("RES-004"),
+    ORDER_NOT_FOUND("RES-005"),
     ;
 
     private final String code;

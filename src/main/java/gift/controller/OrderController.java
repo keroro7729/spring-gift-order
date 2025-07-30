@@ -6,10 +6,7 @@ import gift.common.dto.response.OrderResponseDto;
 import gift.domain.member.Member;
 import gift.service.OrderService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 
@@ -29,5 +26,11 @@ public class OrderController {
         OrderResponseDto created = orderService.order(member, request.optionId(), request.quantity(), request.message());
         String location = "/api/orders/" + created.id();
         return ResponseEntity.created(URI.create(location)).body(created);
+    }
+
+    @GetMapping("/{orderId}")
+    public ResponseEntity<OrderResponseDto> getOrderDetail(@PathVariable Long orderId) {
+        OrderResponseDto response = orderService.get(orderId);
+        return ResponseEntity.ok(response);
     }
 }
