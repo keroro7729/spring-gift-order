@@ -1,4 +1,4 @@
-package gift.external.kakao.request;
+package gift.external.kakao.template;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
@@ -6,16 +6,16 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-public record RefreshRequestDto(String grantType, String clientId, String refreshToken) {
-    public static RefreshRequestDto of(String clientId, String refreshToken) {
-        return new RefreshRequestDto("refresh_token", clientId, refreshToken);
+public record TemplateObject(String objectType, String text, Link link) {
+    public static TemplateObject of(String text, String url) {
+        return new TemplateObject("text", text, Link.of(url));
     }
 
     public MultiValueMap<String, String> toFormData() {
         MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
-        formData.add("grant_type", grantType);
-        formData.add("client_id", clientId);
-        formData.add("refresh_token", refreshToken);
+        formData.add("object_type", objectType);
+        formData.add("text", text);
+        formData.add("link", link.toJsonString());
         return formData;
     }
 }
