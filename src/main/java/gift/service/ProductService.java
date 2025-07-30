@@ -106,15 +106,13 @@ public class ProductService {
     }
 
     @Transactional
-    public ProductOption applyOptionSold(Long productId, Long optionId, Integer soldQuantity) {
-        Product product = find(productId);
-        ProductOption option = product.getOptionById(optionId)
+    public ProductOption applyOptionSold(Long optionId, Integer soldQuantity) {
+        ProductOption option = optionRepository.findById(optionId)
                 .orElseThrow(() -> BusinessException.of(
                         ResourceErrorCode.PRODUCT_OPTION_NOT_FOUND,
                         "상품 옵션이 존재하지 않습니다. id = " + optionId,
                         HttpStatus.NOT_FOUND
                 ));
-
         try {
             option.decreaseQuantity(soldQuantity);
         } catch (ProductOptionException e) {
@@ -137,13 +135,14 @@ public class ProductService {
     @Transactional
     public void deleteOptionOf(Long productId, Long optionId) {
         Product product = find(productId);
-        ProductOption option = product.getOptionById(optionId)
-                .orElseThrow(() -> BusinessException.of(
-                        ResourceErrorCode.PRODUCT_OPTION_NOT_FOUND,
-                        "상품 옵션이 존재하지 않습니다. id = " + optionId,
-                        HttpStatus.NOT_FOUND
-                ));
+        ProductOption option = product.getOptionById(optionId);
         product.removeOption(option);
+    }
+
+    public Product findOptionsOwn(Long optionId) {
+        ProductOption option = optionRepository.findById(optionId)
+                .orElseThrow();
+        return option.getProduct();
     }
 
     private Product find(Long id) {

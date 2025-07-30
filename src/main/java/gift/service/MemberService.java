@@ -5,6 +5,7 @@ import gift.common.dto.response.TokenResponseDto;
 import gift.common.exception.BusinessException;
 import gift.common.exception.EntityNotFoundException;
 import gift.common.exception.code.BusinessErrorCode;
+import gift.common.exception.code.ResourceErrorCode;
 import gift.common.exception.code.SecurityErrorCode;
 import gift.domain.member.Member;
 import gift.domain.member.MemberKakaoToken;
@@ -81,6 +82,13 @@ public class MemberService {
 
     public boolean isKakaoMemberExist(Long providerId) {
         return memberRepository.findByProviderAndProviderId(MemberProvider.KAKAO, providerId.toString()).isPresent();
+    }
+
+    public Member getByKakaoId(String kakaoId) {
+        return memberRepository.findByProviderAndProviderId(MemberProvider.KAKAO, kakaoId)
+                .orElseThrow(() -> BusinessException.of(ResourceErrorCode.MEMBER_NOT_FOUND,
+                        "해당 카카오 식별자의 맴버를 찾을 수 없습니다.",
+                        HttpStatus.NOT_FOUND));
     }
 
     private Member register(String email, String plainPassword) {

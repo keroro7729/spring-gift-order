@@ -105,13 +105,13 @@ public class Product {
         return List.copyOf(options);
     }
 
-    public Optional<ProductOption> getOptionById(Long id) {
+    public ProductOption getOptionById(Long id) {
         for (ProductOption o : options) {
             if (id.equals(o.getId())) {
-                return Optional.of(o);
+                return o;
             }
         }
-        return Optional.empty();
+        throw new ProductDomainRuleException("해당 상품에 없는 옵션으로 찾음");
     }
 
     public void setId(Long id) {
