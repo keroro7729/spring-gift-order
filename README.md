@@ -101,9 +101,15 @@
 - Member 도메인 oauth 연동되도록 수정
 - 맴버 도메인 테스트 변경사항 반영
 - 카카오 회원가입/로그인 서비스 로직 추가
-
-### step2 주문하기
 - soft assertion 적용
 - KakaoApiClientTest 추가
 - 카카오 메세지 api 요청 메서드 추가
 - 주문 처리로직 추가
+- KakaoProperties 생성자 주입 방식으로 변경
+- 도메인 validate 위치 변경
+
+### step2 주문하기
+- 카카오톡 나에게 메세지 보내기 추가
+- order 도메인 추가
+- order service 주문 처리과정 및 api 추가
+- order 조회 api 추가

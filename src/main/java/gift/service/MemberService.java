@@ -5,9 +5,11 @@ import gift.common.dto.response.TokenResponseDto;
 import gift.common.exception.BusinessException;
 import gift.common.exception.EntityNotFoundException;
 import gift.common.exception.code.BusinessErrorCode;
+import gift.common.exception.code.ResourceErrorCode;
 import gift.common.exception.code.SecurityErrorCode;
 import gift.domain.member.Member;
 import gift.domain.member.MemberKakaoToken;
+import gift.domain.member.MemberProvider;
 import gift.repository.MemberRepository;
 import gift.util.JwtUtil;
 import org.springframework.http.HttpStatus;
@@ -15,8 +17,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Optional;
 
 @Service
 public class MemberService {
@@ -53,33 +53,42 @@ public class MemberService {
     }
 
     @Transactional
-    public TokenResponseDto kakaoRegister(Long id, String accessToken, String refreshToken) {
-        if (memberRepository.findByProviderId(id.toString()).isPresent()) {
+    public TokenResponseDto kakaoRegister(Long providerId, String accessToken, String refreshToken) {
+        String id = providerId.toString();
+        if (memberRepository.findByProviderAndProviderId(MemberProvider.KAKAO, id).isPresent()) {
             throw BusinessException.of(BusinessErrorCode.REGISTER_KAKAO_ID_CONFLICT,
                     "이미 가입된 계정입니다.",
                     HttpStatus.CONFLICT);
         }
 
         MemberKakaoToken kakaoToken = MemberKakaoToken.of(accessToken, refreshToken);
-        Member instance = Member.createKakaoInstance(id.toString(), kakaoToken);
+        Member instance = Member.createKakaoInstance(id, kakaoToken);
         Member saved = memberRepository.save(instance);
-        String token = jwtUtil.createToken(saved.getProviderId().toString());
+        String token = jwtUtil.createToken(saved.getProviderId());
         return new TokenResponseDto(token);
     }
 
     @Transactional
-    public TokenResponseDto kakaoLogin(Long id, String accessToken, String refreshToken) {
-        Member member = memberRepository.findByProviderId(id.toString())
+    public TokenResponseDto kakaoLogin(Long providerId, String accessToken, String refreshToken) {
+        String id = providerId.toString();
+        Member member = memberRepository.findByProviderAndProviderId(MemberProvider.KAKAO, id)
                 .orElseThrow(() -> BusinessException.of(SecurityErrorCode.NOT_REGISTERED_KAKAO_MEMBER,
                         "가입되지 않은 카카오 계정입니다.",
                         HttpStatus.BAD_REQUEST));
         member.refresh(accessToken, refreshToken);
-        String token = jwtUtil.createToken(member.getProviderId().toString());
+        String token = jwtUtil.createToken(member.getProviderId());
         return new TokenResponseDto(token);
     }
 
     public boolean isKakaoMemberExist(Long providerId) {
-        return memberRepository.findByProviderId(providerId.toString()).isPresent();
+        return memberRepository.findByProviderAndProviderId(MemberProvider.KAKAO, providerId.toString()).isPresent();
+    }
+
+    public Member getByKakaoId(String kakaoId) {
+        return memberRepository.findByProviderAndProviderId(MemberProvider.KAKAO, kakaoId)
+                .orElseThrow(() -> BusinessException.of(ResourceErrorCode.MEMBER_NOT_FOUND,
+                        "해당 카카오 식별자의 맴버를 찾을 수 없습니다.",
+                        HttpStatus.NOT_FOUND));
     }
 
     private Member register(String email, String plainPassword) {

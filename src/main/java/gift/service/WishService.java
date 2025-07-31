@@ -9,7 +9,6 @@ import gift.domain.member.Member;
 import gift.domain.product.Product;
 import gift.domain.wish.Wish;
 import gift.repository.WishRepository;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -68,6 +67,11 @@ public class WishService {
             );
         }
         wishRepository.delete(wish);
+    }
+
+    public void consume(Member member, Product product) {
+        wishRepository.findByMemberAndProduct(member, product)
+                .ifPresent(wishRepository::delete);
     }
 
     private Wish create(Long memberId, Long productId, Integer quantity) {

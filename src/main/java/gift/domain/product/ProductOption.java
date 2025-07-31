@@ -25,10 +25,10 @@ public class ProductOption {
     }
 
     private ProductOption(Long id, String name, Integer quantity, Product product) {
-        this.id = id;
         validateName(name);
-        this.name = name;
         validateQuantity(quantity);
+        this.id = id;
+        this.name = name;
         this.quantity = quantity;
         this.product = product;
     }

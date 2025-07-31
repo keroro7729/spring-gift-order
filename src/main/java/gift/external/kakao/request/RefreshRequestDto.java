@@ -11,7 +11,7 @@ public record RefreshRequestDto(String grantType, String clientId, String refres
         return new RefreshRequestDto("refresh_token", clientId, refreshToken);
     }
 
-    public MultiValueMap<String, String> toBodyForm() {
+    public MultiValueMap<String, String> toFormData() {
         MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
         formData.add("grant_type", grantType);
         formData.add("client_id", clientId);

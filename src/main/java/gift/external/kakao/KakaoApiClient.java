@@ -8,6 +8,8 @@ import gift.external.kakao.request.RefreshRequestDto;
 import gift.external.kakao.response.GetMemberIdResponseDto;
 import gift.external.kakao.response.GetTokenResponseDto;
 import gift.external.kakao.response.RefreshResponseDto;
+import gift.external.kakao.response.ResultCodeResponseDto;
+import gift.external.kakao.template.TemplateObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -19,6 +21,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
+import org.springframework.web.util.UriComponentsBuilder;
 
 @Component
 public class KakaoApiClient {
@@ -27,7 +30,7 @@ public class KakaoApiClient {
     private final KakaoProperties properties;
     private RestClient kauthClient;
     private RestClient kapiClient;
-    private final String KAKAO_AUTH_URL;
+    private final String kakaoAuthUrl;
 
     public KakaoApiClient(@Qualifier("kauthClient") RestClient kauthClient,
                           @Qualifier("kapiClient") RestClient kapiClient,
@@ -35,10 +38,14 @@ public class KakaoApiClient {
         this.kauthClient = kauthClient;
         this.kapiClient = kapiClient;
         this.properties = properties;
-        KAKAO_AUTH_URL = "https://kauth.kakao.com/oauth/authorize?" +
-                "client_id=" + properties.getClientId() +
-                "&redirect_uri=" + properties.getRedirectLogin() +
-                "&response_type=code";
+        this.kakaoAuthUrl = UriComponentsBuilder.newInstance()
+                .scheme("https")
+                .host("kauth.kakao.com")
+                .path("/oauth/authorize")
+                .queryParam("client_id", properties.getClientId())
+                .queryParam("redirect_uri", properties.getRedirectLogin())
+                .queryParam("response_type", "code")
+                .build().toUriString();
     }
 
     public ResponseEntity<GetTokenResponseDto> requestToken(String code) {
@@ -46,7 +53,7 @@ public class KakaoApiClient {
         try {
             return kauthClient.post()
                     .uri("/oauth/token")
-                    .body(request.toBodyForm())
+                    .body(request.toFormData())
                     .retrieve()
                     .toEntity(GetTokenResponseDto.class);
         } catch (HttpClientErrorException | HttpServerErrorException e) {
@@ -84,7 +91,7 @@ public class KakaoApiClient {
         try {
             return kauthClient.post()
                     .uri("/oauth/token")
-                    .body(request.toBodyForm())
+                    .body(request.toFormData())
                     .retrieve()
                     .toEntity(RefreshResponseDto.class);
         } catch (HttpClientErrorException | HttpServerErrorException e) {
@@ -98,10 +105,32 @@ public class KakaoApiClient {
         }
     }
 
+    public ResponseEntity<ResultCodeResponseDto> sendKakaoMessageToMe(String accessToken, String text, String url) {
+        TemplateObject request = TemplateObject.of(text, url);
+        System.out.println("CHECK HERE!!: " + request.toFormData());
+        try{
+            return kapiClient.post()
+                    .uri("/v2/api/talk/memo/default/send")
+                    .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+                    .header(HttpHeaders.CONTENT_TYPE, "application/x-www-form-urlencoded;charset=utf-8")
+                    .body(request.toFormData())
+                    .retrieve()
+                    .toEntity(ResultCodeResponseDto.class);
+        } catch (HttpClientErrorException | HttpServerErrorException e) {
+            log.error("KAKAO/v2/api/talk/memo/default/send fail detail: ", e);
+            throw BusinessException.internal(ExternalErrorCode.KAKAO_OAUTH_TOKEN_FAIL,
+                    "KAKAOv2/api/talk/memo/default/send 요청 실패: " + e.getMessage());
+        } catch (RestClientException e) {
+            log.error("KAKAOv2/api/talk/memo/default/send fail detail: ", e);
+            throw BusinessException.internal(ExternalErrorCode.KAKAO_OAUTH_TOKEN_NETWORK_FAIL,
+                    "네트워크 오류: " + e.getMessage());
+        }
+    }
+
     public ResponseEntity<Void> redirectToKakaoAuth() {
         String redirectUrl = properties.getRedirectLogin();
         return ResponseEntity.status(HttpStatus.FOUND)
-                .header(HttpHeaders.LOCATION, KAKAO_AUTH_URL)
+                .header(HttpHeaders.LOCATION, kakaoAuthUrl)
                 .build();
     }
 }

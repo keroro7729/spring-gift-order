@@ -4,5 +4,5 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-public record GetMemberIdResponseDto(Long id, Integer expiresIn, Integer appId ) {
+public record GetMemberIdResponseDto(Long id, int expiresIn, int appId ) {
 }
