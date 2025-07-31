@@ -41,11 +41,12 @@ public class OrderService {
         productService.applyOptionSold(optionId, quantity);
         wishService.deleteIfExist(member, product);
 
-        Order order = Order.of(option.getId(), quantity, message);
+        Order order = Order.of(option, quantity, message);
         order = orderRepository.save(order);
         return OrderResponseDto.from(order);
     }
 
+    @Transactional
     public void sendKakaoMessage(Member member, Long orderId) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> BusinessException.of(ResourceErrorCode.ORDER_NOT_FOUND,

@@ -1,5 +1,6 @@
 package gift.config.interceptor;
 
+import gift.domain.member.MemberProvider;
 import gift.util.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -34,9 +35,11 @@ public class JwtInterceptor implements HandlerInterceptor {
             return false;
         }
 
-        String email = jwtUtil.parseToken(token)
-                .getSubject();
-        request.setAttribute("userEmail", email);
+        var claim = jwtUtil.parseToken(token);
+        String subject = claim.getSubject();
+        String provider = claim.get("provider", String.class);
+        request.setAttribute("subject", subject);
+        request.setAttribute("provider", provider);
 
         return true;
     }

@@ -13,11 +13,8 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "product_option_id", nullable = false)
-    private Long productOptionId;
-
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_option_id", insertable = false, updatable = false)
+    @JoinColumn(name = "product_option_id", nullable = false)
     private ProductOption productOption;
 
     @Column(nullable = false)
@@ -32,28 +29,28 @@ public class Order {
     protected Order(){
     }
 
-    private Order(Long id, Long productOptionId, Integer quantity, LocalDateTime orderDateTime, String message) {
+    private Order(Long id, ProductOption productOption, Integer quantity, LocalDateTime orderDateTime, String message) {
         this.id = id;
-        this.productOptionId = productOptionId;
+        this.productOption = productOption;
         this.quantity = quantity;
         this.orderDateTime = orderDateTime;
         this.message = message;
     }
 
-    public static Order of(Long productOptionId, Integer quantity, String message) {
-        return new Order(null, productOptionId, quantity, LocalDateTime.now(), message);
+    public static Order of(ProductOption productOption, Integer quantity, String message) {
+        return new Order(null, productOption, quantity, LocalDateTime.now(), message);
     }
 
     public String getPurchaseMessage() {
-        return String.format("고객님께서 구매하신 상품 %s이 주문 완료되었습니다.", productOption.getName());
+        return String.format("고객님께서 구매하신 상품 %s이 주문 완료되었습니다.", getProductOption().getName());
     }
 
     public Long getId() {
         return id;
     }
 
-    public Long getProductOptionId() {
-        return productOptionId;
+    public ProductOption getProductOption() {
+        return productOption;
     }
 
     public Integer getQuantity() {
