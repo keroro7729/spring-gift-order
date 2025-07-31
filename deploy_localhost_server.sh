@@ -1,6 +1,7 @@
 # deploy_localhost_server.sh
 
 # export KAKAO_CLIENT_ID={secret}
+# export ALLOWED_ORIGIN={webserver_origin} #default: http://localhost:3000
 # ./deploy_forwarding_server.sh
 
 echo "localhost:8080 내부 테스트 서버 배포"

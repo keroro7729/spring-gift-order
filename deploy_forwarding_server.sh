@@ -3,6 +3,7 @@
 # 포트 포워딩 설정 후
 
 # export KAKAO_CLIENT_ID={secret}
+# export ALLOWED_ORIGIN={webserver_origin} #default: http://localhost:3000
 # ./deploy_forwarding_server.sh
 
 # 안내에 따라
@@ -43,4 +44,5 @@ java -Dspring.profiles.active=$SPRING_PROFILES_ACTIVE \
      -Dspring.server.address=$SPRING_SERVER_ADDRESS \
      -Dspring.server.port=$SPRING_SERVER_PORT \
      -Dkakao.redirect.login=$KAKAO_REDIRECT_LOGIN \
+     -Dallowed.origin=$ALLOWED_ORIGIN \
      -jar "$JAR_PATH"
