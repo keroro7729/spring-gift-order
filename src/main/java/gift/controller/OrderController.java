@@ -4,6 +4,7 @@ import gift.common.annotation.CurrentMember;
 import gift.common.dto.request.OrderRequestDto;
 import gift.common.dto.response.OrderResponseDto;
 import gift.domain.member.Member;
+import gift.external.kakao.KakaoApiClient;
 import gift.service.OrderService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,12 +26,13 @@ public class OrderController {
                                                   @RequestBody OrderRequestDto request) {
         OrderResponseDto created = orderService.order(member, request.optionId(), request.quantity(), request.message());
         String location = "/api/orders/" + created.id();
+        orderService.sendKakaoMessage(member, created.id());
         return ResponseEntity.created(URI.create(location)).body(created);
     }
 
     @GetMapping("/{orderId}")
     public ResponseEntity<OrderResponseDto> getOrderDetail(@PathVariable Long orderId) {
-        OrderResponseDto response = orderService.get(orderId);
+        OrderResponseDto response = orderService.getOrder(orderId);
         return ResponseEntity.ok(response);
     }
 }

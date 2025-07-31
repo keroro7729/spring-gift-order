@@ -6,6 +6,6 @@ import java.time.LocalDateTime;
 
 public record OrderResponseDto(long id, long optionId, int quantity, LocalDateTime orderDateTime, String message) {
     public static OrderResponseDto from(Order order) {
-        return new OrderResponseDto(order.getId(), order.getOptionId(), order.getQuantity(), order.getOrderDateTime(), order.getMessage());
+        return new OrderResponseDto(order.getId(), order.getProductOptionId(), order.getQuantity(), order.getOrderDateTime(), order.getMessage());
     }
 }
