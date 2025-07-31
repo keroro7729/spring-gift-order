@@ -113,3 +113,12 @@
 - order 도메인 추가
 - order service 주문 처리과정 및 api 추가
 - order 조회 api 추가
+
+### step3 배포하기
+- yml 환경변수 도입 및 dev/local 환경분리
+- localhost 테스트 배포, 포트포워딩 로컬 서버 배포 쉘 스크립트 추가
+- webserver origin CORS 설정 추가 및 배포 스크립트 수정
+- KakaoConfig 추가
+- Order ProductOption 읽기전용 매핑 추가
+- 주문 처리 트렌젝션, 카카오 메세지 외부 api 분리
+- RestClient timeout 추가
