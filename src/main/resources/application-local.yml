@@ -19,4 +19,4 @@ spring:
 
   server:
     address: ${SPRING_SERVER_ADDRESS}
-    port: 8080
+    port: ${SPRING_SERVER_PORT}
