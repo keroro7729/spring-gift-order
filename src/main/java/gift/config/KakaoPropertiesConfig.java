@@ -5,5 +5,5 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @EnableConfigurationProperties(KakaoProperties.class)
-public class KakaoConfig {
+public class KakaoPropertiesConfig {
 }

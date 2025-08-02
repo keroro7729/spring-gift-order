@@ -4,7 +4,6 @@ import gift.common.annotation.CurrentMember;
 import gift.common.dto.request.OrderRequestDto;
 import gift.common.dto.response.OrderResponseDto;
 import gift.domain.member.Member;
-import gift.external.kakao.KakaoApiClient;
 import gift.service.OrderService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,7 +20,7 @@ public class OrderController {
         this.orderService = orderService;
     }
 
-    @PostMapping()
+    @PostMapping
     public ResponseEntity<OrderResponseDto> order(@CurrentMember Member member,
                                                   @RequestBody OrderRequestDto request) {
         OrderResponseDto created = orderService.order(member, request.optionId(), request.quantity(), request.message());
