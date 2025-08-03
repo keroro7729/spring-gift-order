@@ -69,7 +69,7 @@ public class WishService {
         wishRepository.delete(wish);
     }
 
-    public void consume(Member member, Product product) {
+    public void deleteIfExist(Member member, Product product) {
         wishRepository.findByMemberAndProduct(member, product)
                 .ifPresent(wishRepository::delete);
     }

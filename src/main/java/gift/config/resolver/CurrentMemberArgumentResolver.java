@@ -1,6 +1,8 @@
 package gift.config.resolver;
 
 import gift.common.annotation.CurrentMember;
+import gift.domain.member.Member;
+import gift.domain.member.MemberProvider;
 import gift.service.MemberService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.core.MethodParameter;
@@ -30,8 +32,11 @@ public class CurrentMemberArgumentResolver implements HandlerMethodArgumentResol
                                   NativeWebRequest webRequest,
                                   WebDataBinderFactory binderFactory) throws Exception {
         HttpServletRequest request = (HttpServletRequest) webRequest.getNativeRequest();
-        String email = (String) request.getAttribute("userEmail");
+        String subject = (String) request.getAttribute("subject");
+        String provider = (String) request.getAttribute("provider");
 
-        return memberService.getMemberByEmail(email);
+        return provider.equals(MemberProvider.LOCAL.toString()) ?
+                memberService.getMemberByEmail(subject) :
+                memberService.getByKakaoId(subject);
     }
 }

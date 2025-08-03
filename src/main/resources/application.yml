@@ -2,15 +2,8 @@ spring:
   application:
     name: spring-gift
 
-  h2:
-    console:
-      enabled: true
-
-  datasource:
-    driver-class-name: org.h2.Driver
-    url: jdbc:h2:mem:test
-    username: sa
-    password:
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
 
   jpa:
     hibernate:
@@ -22,11 +15,9 @@ spring:
       mode: always
       data-locations: classpath:/sql/data.sql
 
-  profiles:
-    active: dev
-
-
 kakao:
-  client-id: dummy-client-id
-  redirect-login: http://localhost:8080/api/oauth/kakao/login
+  client-id: ${KAKAO_CLIENT_ID:dummy-client-id}
+  redirect-login: ${KAKAO_REDIRECT_LOGIN:http://localhost:8080/api/oauth/kakao/login}
 
+allowed:
+  origin: ${ALLOWED_ORIGIN:http://localhost:3000}

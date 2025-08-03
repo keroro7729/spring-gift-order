@@ -64,7 +64,7 @@ public class MemberService {
         MemberKakaoToken kakaoToken = MemberKakaoToken.of(accessToken, refreshToken);
         Member instance = Member.createKakaoInstance(id, kakaoToken);
         Member saved = memberRepository.save(instance);
-        String token = jwtUtil.createToken(saved.getProviderId());
+        String token = jwtUtil.createToken(saved.getProviderId(), MemberProvider.KAKAO);
         return new TokenResponseDto(token);
     }
 
@@ -76,7 +76,7 @@ public class MemberService {
                         "가입되지 않은 카카오 계정입니다.",
                         HttpStatus.BAD_REQUEST));
         member.refresh(accessToken, refreshToken);
-        String token = jwtUtil.createToken(member.getProviderId());
+        String token = jwtUtil.createToken(member.getProviderId(), MemberProvider.KAKAO);
         return new TokenResponseDto(token);
     }
 
@@ -119,7 +119,7 @@ public class MemberService {
                     HttpStatus.UNAUTHORIZED
             );
         }
-        String token = jwtUtil.createToken(member.getEmail());
+        String token = jwtUtil.createToken(member.getEmail(), MemberProvider.LOCAL);
         return new TokenResponseDto(token);
     }
 }

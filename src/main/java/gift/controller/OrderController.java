@@ -20,17 +20,18 @@ public class OrderController {
         this.orderService = orderService;
     }
 
-    @PostMapping()
+    @PostMapping
     public ResponseEntity<OrderResponseDto> order(@CurrentMember Member member,
                                                   @RequestBody OrderRequestDto request) {
         OrderResponseDto created = orderService.order(member, request.optionId(), request.quantity(), request.message());
         String location = "/api/orders/" + created.id();
+        orderService.sendKakaoMessage(member, created.id());
         return ResponseEntity.created(URI.create(location)).body(created);
     }
 
     @GetMapping("/{orderId}")
     public ResponseEntity<OrderResponseDto> getOrderDetail(@PathVariable Long orderId) {
-        OrderResponseDto response = orderService.get(orderId);
+        OrderResponseDto response = orderService.getOrder(orderId);
         return ResponseEntity.ok(response);
     }
 }

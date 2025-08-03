@@ -1,5 +1,6 @@
 package gift.util;
 
+import gift.domain.member.MemberProvider;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
@@ -20,9 +21,10 @@ public class JwtUtil {
     private final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
     private final long expirationMs = 1000 * 60 * 60;
 
-    public String createToken(String subject) {
+    public String createToken(String subject, MemberProvider provider) {
         return Jwts.builder()
                 .setSubject(subject)
+                .claim("provider", provider.toString())
                 .setExpiration(new Date(System.currentTimeMillis() + expirationMs))
                 .signWith(key)
                 .compact();

@@ -29,3 +29,11 @@
 - 로그인 된 사용자만 사용 할 수 있는 서비스는 `Authorization: Bearer 토큰` 헤더 검증
 - 
 - 토큰 유효기간은 1시간으로 설정, *추후 refresh token 도입 예정*
+
+### 배포
+- yml 환경 분리, env 적용, 서버 구동 학습을 위해 로컬 배포를 선택했습니다.
+- dev 환경: localhost:8080 h2:mem, ddl-auto=create
+- local 환경: SERVER_IP:SERVER_PORT, h2:file, ddl-auto=update
+- 환경변수 셋팅 및 배포 과정 안내 쉘 스크립트:
+localhost 내부 테스트 배포, 포트포워딩 외부 테스트 배포
+- Cors 설정과 배포과정에 env로 webserver origin을 추가할 수 있도록 적용

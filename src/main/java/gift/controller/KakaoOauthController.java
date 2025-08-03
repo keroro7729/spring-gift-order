@@ -29,8 +29,8 @@ public class KakaoOauthController {
 
     @GetMapping("/login")
     public ResponseEntity<TokenResponseDto> login(@RequestParam String code) {
-        GetTokenResponseDto tokenResponse = kakaoClient.requestToken(code).getBody();
-        GetMemberIdResponseDto idResponse = kakaoClient.requestMemberId(tokenResponse.accessToken()).getBody();
+        GetTokenResponseDto tokenResponse = kakaoClient.requestToken(code);
+        GetMemberIdResponseDto idResponse = kakaoClient.requestMemberId(tokenResponse.accessToken());
 
         if(memberService.isKakaoMemberExist(idResponse.id())) {
             TokenResponseDto response = memberService.kakaoLogin(idResponse.id(), tokenResponse.accessToken(), tokenResponse.refreshToken());

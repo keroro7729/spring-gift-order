@@ -28,10 +28,8 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(jwtInterceptor)
-                .addPathPatterns("/api/wishes/**");
-
-        registry.addInterceptor(hostInterceptor)
-                .addPathPatterns("/**");
+                .addPathPatterns("/api/wishes/**")
+                .addPathPatterns("/api/orders/**");
     }
 
     @Override
